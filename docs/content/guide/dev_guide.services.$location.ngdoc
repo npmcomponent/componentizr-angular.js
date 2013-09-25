@@ -14,10 +14,10 @@ changes to $location are reflected into the browser address bar.
 - Exposes the current URL in the browser address bar, so you can
   - Watch and observe the URL.
   - Change the URL.
-- Synchronizes the URL with the browser when the user
-  - Changes the address bar.
-  - Clicks the back or forward button (or clicks a History link).
-  - Clicks on a link.
+- Maintains synchronization between itself and the browser's URL when the user
+  - Changes the address in the browser's address bar.
+  - Clicks the back or forward button in the browser (or clicks a History link).
+  - Clicks on a link in the page.
 - Represents the URL object as a set of methods (protocol, host, port, path, search, hash).
 
 
@@ -120,6 +120,8 @@ $location.path('/newValue')
 All of the setter methods return the same `$location` object to allow chaining. For example, to
 change multiple segments in one go, chain setters like this:
 <pre>$location.path('/newValue').search({key: value});</pre>
+
+## Replace method
 
 There is a special `replace` method which can be used to tell the $location service that the next
 time the $location service is synced with the browser, the last history record should be replaced
