@@ -1,5 +1,5 @@
 /**
- * @license AngularJS v1.2.0-73c128a
+ * @license AngularJS v1.2.0-c2f9d84
  * (c) 2010-2012 Google, Inc. http://angularjs.org
  * License: MIT
  */
@@ -1557,7 +1557,7 @@ function setupModuleLoader(window) {
  * - `codeName` – `{string}` – Code name of the release, such as "jiggling-armfat".
  */
 var version = {
-  full: '1.2.0-73c128a',    // all of these placeholder strings will be replaced by grunt's
+  full: '1.2.0-c2f9d84',    // all of these placeholder strings will be replaced by grunt's
   major: 1,    // package task
   minor: 2,
   dot: 0,
@@ -15665,7 +15665,7 @@ var ngCspDirective = ['$sniffer', function($sniffer) {
  */
 var ngEventDirectives = {};
 forEach(
-  'click dblclick mousedown mouseup mouseover mouseout mousemove mouseenter mouseleave keydown keyup keypress submit focus blur'.split(' '),
+  'click dblclick mousedown mouseup mouseover mouseout mousemove mouseenter mouseleave keydown keyup keypress submit focus blur copy cut paste'.split(' '),
   function(name) {
     var directiveName = directiveNormalize('ng-' + name);
     ngEventDirectives[directiveName] = ['$parse', function($parse) {
@@ -15918,6 +15918,51 @@ forEach(
  * @element window, input, select, textarea, a
  * @param {expression} ngBlur {@link guide/expression Expression} to evaluate upon
  * blur. (Event object is available as `$event`)
+ *
+ * @example
+ * See {@link ng.directive:ngClick ngClick}
+ */
+
+/**
+ * @ngdoc directive
+ * @name ng.directive:ngCopy
+ *
+ * @description
+ * Specify custom behavior on copy event.
+ *
+ * @element window, input, select, textarea, a
+ * @param {expression} ngCopy {@link guide/expression Expression} to evaluate upon
+ * copy. (Event object is available as `$event`)
+ *
+ * @example
+ * See {@link ng.directive:ngClick ngClick}
+ */
+
+/**
+ * @ngdoc directive
+ * @name ng.directive:ngCut
+ *
+ * @description
+ * Specify custom behavior on cut event.
+ *
+ * @element window, input, select, textarea, a
+ * @param {expression} ngCut {@link guide/expression Expression} to evaluate upon
+ * cut. (Event object is available as `$event`)
+ *
+ * @example
+ * See {@link ng.directive:ngClick ngClick}
+ */
+
+/**
+ * @ngdoc directive
+ * @name ng.directive:ngPaste
+ *
+ * @description
+ * Specify custom behavior on paste event.
+ *
+ * @element window, input, select, textarea, a
+ * @param {expression} ngPaste {@link guide/expression Expression} to evaluate upon
+ * paste. (Event object is available as `$event`)
  *
  * @example
  * See {@link ng.directive:ngClick ngClick}
