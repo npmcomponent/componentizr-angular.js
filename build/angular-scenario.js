@@ -9790,7 +9790,7 @@ if ( typeof module === "object" && module && typeof module.exports === "object" 
 })( window );
 
 /**
- * @license AngularJS v1.2.0-c2f9d84
+ * @license AngularJS v1.2.0-bf0559b
  * (c) 2010-2012 Google, Inc. http://angularjs.org
  * License: MIT
  */
@@ -11349,7 +11349,7 @@ function setupModuleLoader(window) {
  * - `codeName` – `{string}` – Code name of the release, such as "jiggling-armfat".
  */
 var version = {
-  full: '1.2.0-c2f9d84',    // all of these placeholder strings will be replaced by grunt's
+  full: '1.2.0-bf0559b',    // all of these placeholder strings will be replaced by grunt's
   major: 1,    // package task
   minor: 2,
   dot: 0,
@@ -14508,8 +14508,8 @@ function $CompileProvider($provide) {
           // iterate over the attributes
           for (var attr, name, nName, ngAttrName, value, nAttrs = node.attributes,
                    j = 0, jj = nAttrs && nAttrs.length; j < jj; j++) {
-            var attrStartName;
-            var attrEndName;
+            var attrStartName = false;
+            var attrEndName = false;
             var index;
 
             attr = nAttrs[j];
@@ -14520,11 +14520,14 @@ function $CompileProvider($provide) {
               if (NG_ATTR_BINDING.test(ngAttrName)) {
                 name = ngAttrName.substr(6).toLowerCase();
               }
-              if ((index = ngAttrName.lastIndexOf('Start')) != -1 && index == ngAttrName.length - 5) {
+
+              var directiveNName = ngAttrName.replace(/(Start|End)$/, '');
+              if (ngAttrName === directiveNName + 'Start') {
                 attrStartName = name;
                 attrEndName = name.substr(0, name.length - 5) + 'end';
                 name = name.substr(0, name.length - 6);
               }
+
               nName = directiveNormalize(name.toLowerCase());
               attrsMap[nName] = name;
               attrs[nName] = value = trim((msie && name == 'href')
@@ -14599,6 +14602,7 @@ function $CompileProvider($provide) {
       } else {
         nodes.push(node);
       }
+
       return jqLite(nodes);
     }
 
