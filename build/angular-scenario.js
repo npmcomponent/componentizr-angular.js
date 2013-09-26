@@ -9790,7 +9790,7 @@ if ( typeof module === "object" && module && typeof module.exports === "object" 
 })( window );
 
 /**
- * @license AngularJS v1.2.0-9cad8ad
+ * @license AngularJS v1.2.0-73c128a
  * (c) 2010-2012 Google, Inc. http://angularjs.org
  * License: MIT
  */
@@ -11349,7 +11349,7 @@ function setupModuleLoader(window) {
  * - `codeName` – `{string}` – Code name of the release, such as "jiggling-armfat".
  */
 var version = {
-  full: '1.2.0-9cad8ad',    // all of these placeholder strings will be replaced by grunt's
+  full: '1.2.0-73c128a',    // all of these placeholder strings will be replaced by grunt's
   major: 1,    // package task
   minor: 2,
   dot: 0,
@@ -28409,7 +28409,7 @@ _jQuery.fn.bindings = function(windowJquery, bindExp) {
           }
           catch(e) {
             evnt = document.createEvent('TransitionEvent');
-            evnt.initTransitionEvent(eventType, null, null, null, eventData.elapsedTime);
+            evnt.initTransitionEvent(eventType, null, null, null, eventData.elapsedTime || 0);
           }
         }
       }
@@ -28424,7 +28424,7 @@ _jQuery.fn.bindings = function(windowJquery, bindExp) {
           }
           catch(e) {
             evnt = document.createEvent('AnimationEvent');
-            evnt.initAnimationEvent(eventType, null, null, null, eventData.elapsedTime);
+            evnt.initAnimationEvent(eventType, null, null, null, eventData.elapsedTime || 0);
           }
         }
       }
@@ -28435,6 +28435,11 @@ _jQuery.fn.bindings = function(windowJquery, bindExp) {
         evnt.initMouseEvent(eventType, true, true, window, 0, x, y, x, y, pressed('ctrl'), pressed('alt'),
             pressed('shift'), pressed('meta'), 0, element);
       }
+
+      /* we're unable to change the timeStamp value directly so this
+       * is only here to allow for testing where the timeStamp value is
+       * read */
+      evnt.$manualTimeStamp = eventData.timeStamp;
 
       if(!evnt) return;
 
