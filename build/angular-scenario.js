@@ -9790,7 +9790,7 @@ if ( typeof module === "object" && module && typeof module.exports === "object" 
 })( window );
 
 /**
- * @license AngularJS v1.2.0-e22f724
+ * @license AngularJS v1.2.0-a70ccbe
  * (c) 2010-2012 Google, Inc. http://angularjs.org
  * License: MIT
  */
@@ -11349,7 +11349,7 @@ function setupModuleLoader(window) {
  * - `codeName` – `{string}` – Code name of the release, such as "jiggling-armfat".
  */
 var version = {
-  full: '1.2.0-e22f724',    // all of these placeholder strings will be replaced by grunt's
+  full: '1.2.0-a70ccbe',    // all of these placeholder strings will be replaced by grunt's
   major: 1,    // package task
   minor: 2,
   dot: 0,
@@ -22760,9 +22760,9 @@ var htmlAnchorDirective = valueFn({
  * </div>
  * </pre>
  *
- * The HTML specs do not require browsers to preserve the special attributes such as disabled.
- * (The presence of them means true and absence means false)
- * This prevents the angular compiler from correctly retrieving the binding expression.
+ * The HTML specs do not require browsers to preserve the values of special attributes
+ * such as disabled. (The presence of them means true and absence means false)
+ * This prevents the Angular compiler from correctly retrieving the binding expression.
  * To solve this problem, we introduce the `ngDisabled` directive.
  *
  * @example
@@ -25233,7 +25233,7 @@ var ngCloakDirective = ngDirective({
  *
  * MVC components in angular:
  *
- * * Model — The Model is scope properties; scopes are attached to DOM where scope properties
+ * * Model — The Model is scope properties; scopes are attached to the DOM where scope properties
  *   are accessed through bindings.
  * * View — The template (HTML with data bindings) that is rendered into the View.
  * * Controller — The `ngController` directive specifies a Controller class; the class contains business
@@ -25254,8 +25254,8 @@ var ngCloakDirective = ngDirective({
  * easily be called from the angular markup. Notice that the scope becomes the `this` for the
  * controller's instance. This allows for easy access to the view data from the controller. Also
  * notice that any changes to the data are automatically reflected in the View without the need
- * for a manual update. The example is included in two different declaration styles based on
- * your style preferences.
+ * for a manual update. The example is shown in two different declaration styles you may use
+ * according to preference.
    <doc:example>
      <doc:source>
       <script>
@@ -25406,12 +25406,12 @@ var ngControllerDirective = [function() {
  * For us to be compatible, we just need to implement the "getterFn" in $parse without violating
  * any of these restrictions.
  * 
- * AngularJS uses `Function(string)` generated functions as a speed optimization. By applying `ngCsp`
- * it is be possible to opt into the CSP compatible mode. When this mode is on AngularJS will
+ * AngularJS uses `Function(string)` generated functions as a speed optimization. Applying the `ngCsp`
+ * directive will cause Angular to use CSP compatibility mode. When this mode is on AngularJS will
  * evaluate all expressions up to 30% slower than in non-CSP mode, but no security violations will
  * be raised.
  * 
- * In order to use this feature put `ngCsp` directive on the root element of the application.
+ * In order to use this feature put the `ngCsp` directive on the root element of the application.
  * 
  * @example
  * This example shows how to apply the `ngCsp` directive to the `html` tag.
@@ -25491,11 +25491,11 @@ forEach(
  * @name ng.directive:ngDblclick
  *
  * @description
- * The `ngDblclick` directive allows you to specify custom behavior on dblclick event.
+ * The `ngDblclick` directive allows you to specify custom behavior on a dblclick event.
  *
  * @element ANY
  * @param {expression} ngDblclick {@link guide/expression Expression} to evaluate upon
- * dblclick. (Event object is available as `$event`)
+ * a dblclick. (The Event object is available as `$event`)
  *
  * @example
  * See {@link ng.directive:ngClick ngClick}
