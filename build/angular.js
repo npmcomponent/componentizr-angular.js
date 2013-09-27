@@ -1,5 +1,5 @@
 /**
- * @license AngularJS v1.2.0-bf0559b
+ * @license AngularJS v1.2.0-e22f724
  * (c) 2010-2012 Google, Inc. http://angularjs.org
  * License: MIT
  */
@@ -1557,7 +1557,7 @@ function setupModuleLoader(window) {
  * - `codeName` – `{string}` – Code name of the release, such as "jiggling-armfat".
  */
 var version = {
-  full: '1.2.0-bf0559b',    // all of these placeholder strings will be replaced by grunt's
+  full: '1.2.0-e22f724',    // all of these placeholder strings will be replaced by grunt's
   major: 1,    // package task
   minor: 2,
   dot: 0,
@@ -1955,17 +1955,17 @@ function JQLiteData(element, key, value) {
 }
 
 function JQLiteHasClass(element, selector) {
-  return ((" " + element.className + " ").replace(/[\n\t]/g, " ").
+  return ((" " + (element.getAttribute('class') || '') + " ").replace(/[\n\t]/g, " ").
       indexOf( " " + selector + " " ) > -1);
 }
 
 function JQLiteRemoveClass(element, cssClasses) {
   if (cssClasses) {
     forEach(cssClasses.split(' '), function(cssClass) {
-      element.className = trim(
-          (" " + element.className + " ")
+      element.setAttribute('class', trim(
+          (" " + (element.getAttribute('class') || '') + " ")
           .replace(/[\n\t]/g, " ")
-          .replace(" " + trim(cssClass) + " ", " ")
+          .replace(" " + trim(cssClass) + " ", " "))
       );
     });
   }
@@ -1973,11 +1973,17 @@ function JQLiteRemoveClass(element, cssClasses) {
 
 function JQLiteAddClass(element, cssClasses) {
   if (cssClasses) {
+    var existingClasses = (' ' + (element.getAttribute('class') || '') + ' ')
+                            .replace(/[\n\t]/g, " ");
+
     forEach(cssClasses.split(' '), function(cssClass) {
-      if (!JQLiteHasClass(element, cssClass)) {
-        element.className = trim(element.className + ' ' + trim(cssClass));
+      cssClass = trim(cssClass);
+      if (existingClasses.indexOf(' ' + cssClass + ' ') === -1) {
+        existingClasses += cssClass + ' ';
       }
     });
+
+    element.setAttribute('class', trim(existingClasses));
   }
 }
 
@@ -3442,7 +3448,9 @@ var $AnimateProvider = ['$provide', function($provide) {
         className = isString(className) ?
                       className :
                       isArray(className) ? className.join(' ') : '';
-        element.addClass(className);
+        forEach(element, function (element) {
+          JQLiteAddClass(element, className);
+        });
         done && $timeout(done, 0, false);
       },
 
@@ -3463,7 +3471,9 @@ var $AnimateProvider = ['$provide', function($provide) {
         className = isString(className) ?
                       className :
                       isArray(className) ? className.join(' ') : '';
-        element.removeClass(className);
+        forEach(element, function (element) {
+          JQLiteRemoveClass(element, className);
+        });
         done && $timeout(done, 0, false);
       },
 
@@ -4718,7 +4728,6 @@ function $CompileProvider($provide) {
                    j = 0, jj = nAttrs && nAttrs.length; j < jj; j++) {
             var attrStartName = false;
             var attrEndName = false;
-            var index;
 
             attr = nAttrs[j];
             if (!msie || msie >= 8 || attr.specified) {
