@@ -1,5 +1,5 @@
 /**
- * @license AngularJS v1.2.0-6b468ed
+ * @license AngularJS v1.2.0-a1f4f13
  * (c) 2010-2012 Google, Inc. http://angularjs.org
  * License: MIT
  *
@@ -1958,7 +1958,7 @@ angular.mock.clearDataCache = function() {
    *       inject(function(version) {
    *         expect(version).toEqual('overridden');
    *       });
-   *     ));
+   *     });
    *   });
    *
    * </pre>
