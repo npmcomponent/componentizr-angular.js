@@ -1,5 +1,5 @@
 /**
- * @license AngularJS v1.2.0-c2dc220
+ * @license AngularJS v1.2.0-6dd4b44
  * (c) 2010-2012 Google, Inc. http://angularjs.org
  * License: MIT
  */
@@ -222,7 +222,8 @@ function setupModuleLoader(window) {
            * @ngdoc method
            * @name angular.Module#controller
            * @methodOf angular.Module
-           * @param {string} name Controller name.
+           * @param {string|Object} name Controller name, or an object map of controllers where the
+           *    keys are the names and the values are the constructors.
            * @param {Function} constructor Controller constructor function.
            * @description
            * See {@link ng.$controllerProvider#register $controllerProvider.register()}.
@@ -233,7 +234,8 @@ function setupModuleLoader(window) {
            * @ngdoc method
            * @name angular.Module#directive
            * @methodOf angular.Module
-           * @param {string} name directive name
+           * @param {string|Object} name Directive name, or an object map of directives where the
+           *    keys are the names and the values are the factories.
            * @param {Function} directiveFactory Factory function for creating new instance of
            * directives.
            * @description
