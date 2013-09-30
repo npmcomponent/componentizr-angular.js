@@ -1,5 +1,5 @@
 /**
- * @license AngularJS v1.2.0-dd773c1
+ * @license AngularJS v1.2.0-686254a
  * (c) 2010-2012 Google, Inc. http://angularjs.org
  * License: MIT
  */
@@ -634,8 +634,10 @@ angular.module('ngAnimate', ['ng'])
 
           //temporarily disable the transition so that the enter styles
           //don't animate twice (this is here to avoid a bug in Chrome/FF).
-          node.style[w3cTransitionProp + propertyKey] = 'none';
-          node.style[vendorTransitionProp + propertyKey] = 'none';
+          if(transitionTime > 0) {
+            node.style[w3cTransitionProp + propertyKey] = 'none';
+            node.style[vendorTransitionProp + propertyKey] = 'none';
+          }
 
           var activeClassName = '';
           forEach(className.split(' '), function(klass, i) {
@@ -644,8 +646,10 @@ angular.module('ngAnimate', ['ng'])
 
           //this triggers a reflow which allows for the transition animation to kick in
           element.prop('clientWidth');
-          node.style[w3cTransitionProp + propertyKey] = '';
-          node.style[vendorTransitionProp + propertyKey] = '';
+          if(transitionTime > 0) {
+            node.style[w3cTransitionProp + propertyKey] = '';
+            node.style[vendorTransitionProp + propertyKey] = '';
+          }
           element.addClass(activeClassName);
 
           var css3AnimationEvents = [w3cAnimationEvent,  vendorAnimationEvent,
