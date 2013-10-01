@@ -9790,7 +9790,7 @@ if ( typeof module === "object" && module && typeof module.exports === "object" 
 })( window );
 
 /**
- * @license AngularJS v1.2.0-11afa77
+ * @license AngularJS v1.2.0-5558d18
  * (c) 2010-2012 Google, Inc. http://angularjs.org
  * License: MIT
  */
@@ -11387,7 +11387,7 @@ function setupModuleLoader(window) {
  * - `codeName` – `{string}` – Code name of the release, such as "jiggling-armfat".
  */
 var version = {
-  full: '1.2.0-11afa77',    // all of these placeholder strings will be replaced by grunt's
+  full: '1.2.0-5558d18',    // all of these placeholder strings will be replaced by grunt's
   major: 1,    // package task
   minor: 2,
   dot: 0,
@@ -16635,7 +16635,9 @@ function createHttpBackend($browser, XHR, $browserDefer, callbacks, rawDocument,
       var xhr = new XHR();
       xhr.open(method, url, true);
       forEach(headers, function(value, key) {
-        if (value) xhr.setRequestHeader(key, value);
+        if (isDefined(value)) {
+            xhr.setRequestHeader(key, value);
+        }
       });
 
       // In IE6 and 7, this might be called synchronously when xhr.send below is called and the
