@@ -1,5 +1,5 @@
 /**
- * @license AngularJS v1.2.0-b193c4a
+ * @license AngularJS v1.2.0-10fd3a1
  * (c) 2010-2012 Google, Inc. http://angularjs.org
  * License: MIT
  */
@@ -1595,7 +1595,7 @@ function setupModuleLoader(window) {
  * - `codeName` – `{string}` – Code name of the release, such as "jiggling-armfat".
  */
 var version = {
-  full: '1.2.0-b193c4a',    // all of these placeholder strings will be replaced by grunt's
+  full: '1.2.0-10fd3a1',    // all of these placeholder strings will be replaced by grunt's
   major: 1,    // package task
   minor: 2,
   dot: 0,
@@ -12072,15 +12072,32 @@ $FilterProvider.$inject = ['$provide'];
 function $FilterProvider($provide) {
   var suffix = 'Filter';
 
+  /**
+   * @ngdoc function
+   * @name ng.$controllerProvider#register
+   * @methodOf ng.$controllerProvider
+   * @param {string|Object} name Name of the filter function, or an object map of filters where
+   *    the keys are the filter names and the values are the filter factories.
+   * @returns {Object} Registered filter instance, or if a map of filters was provided then a map
+   *    of the registered filter instances.
+   */
   function register(name, factory) {
-    return $provide.factory(name + suffix, factory);
+    if(isObject(name)) {
+      var filters = {};
+      forEach(name, function(filter, key) {
+        filters[key] = register(key, filter);
+      });
+      return filters;
+    } else {
+      return $provide.factory(name + suffix, factory);
+    }
   }
   this.register = register;
 
   this.$get = ['$injector', function($injector) {
     return function(name) {
       return $injector.get(name + suffix);
-    }
+    };
   }];
 
   ////////////////////////////////////////
