@@ -9790,7 +9790,7 @@ if ( typeof module === "object" && module && typeof module.exports === "object" 
 })( window );
 
 /**
- * @license AngularJS v1.2.0-69a595b
+ * @license AngularJS v1.2.0-3899cb0
  * (c) 2010-2012 Google, Inc. http://angularjs.org
  * License: MIT
  */
@@ -11387,7 +11387,7 @@ function setupModuleLoader(window) {
  * - `codeName` – `{string}` – Code name of the release, such as "jiggling-armfat".
  */
 var version = {
-  full: '1.2.0-69a595b',    // all of these placeholder strings will be replaced by grunt's
+  full: '1.2.0-3899cb0',    // all of these placeholder strings will be replaced by grunt's
   major: 1,    // package task
   minor: 2,
   dot: 0,
@@ -19818,7 +19818,7 @@ function $RootScopeProvider(){
             dirty, ttl = TTL,
             next, current, target = this,
             watchLog = [],
-            logIdx, logMsg;
+            logIdx, logMsg, asyncTask;
 
         beginPhase('$digest');
 
@@ -19828,7 +19828,8 @@ function $RootScopeProvider(){
 
           while(asyncQueue.length) {
             try {
-              current.$eval(asyncQueue.shift());
+              asyncTask = asyncQueue.shift();
+              asyncTask.scope.$eval(asyncTask.expression);
             } catch (e) {
               $exceptionHandler(e);
             }
@@ -20021,7 +20022,7 @@ function $RootScopeProvider(){
           });
         }
 
-        this.$$asyncQueue.push(expr);
+        this.$$asyncQueue.push({scope: this, expression: expr});
       },
 
       $$postDigest : function(fn) {
