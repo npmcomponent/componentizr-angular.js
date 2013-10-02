@@ -1,5 +1,5 @@
 /**
- * @license AngularJS v1.2.0-4615b94
+ * @license AngularJS v1.2.0-69a595b
  * (c) 2010-2012 Google, Inc. http://angularjs.org
  * License: MIT
  */
@@ -1595,7 +1595,7 @@ function setupModuleLoader(window) {
  * - `codeName` – `{string}` – Code name of the release, such as "jiggling-armfat".
  */
 var version = {
-  full: '1.2.0-4615b94',    // all of these placeholder strings will be replaced by grunt's
+  full: '1.2.0-69a595b',    // all of these placeholder strings will be replaced by grunt's
   major: 1,    // package task
   minor: 2,
   dot: 0,
@@ -4572,9 +4572,11 @@ function $CompileProvider($provide) {
        * @function
        *
        * @description
-       * Observe an interpolated attribute.
-       * The observer will never be called, if given attribute is not interpolated.
-       * The interpolated value of the attribute is passed to the observer function.
+       * Observes an interpolated attribute.
+       *
+       * The observer function will be invoked once during the next `$digest` following
+       * compilation. The observer is then invoked whenever the interpolated value
+       * changes.
        *
        * @param {string} key Normalized key. (ie ngAttribute) .
        * @param {function(interpolatedValue)} fn Function that will be called whenever
@@ -4778,7 +4780,7 @@ function $CompileProvider($provide) {
               // support ngAttr attribute binding
               ngAttrName = directiveNormalize(name);
               if (NG_ATTR_BINDING.test(ngAttrName)) {
-                name = ngAttrName.substr(6).toLowerCase();
+                name = snake_case(ngAttrName.substr(6), '-');
               }
 
               var directiveNName = ngAttrName.replace(/(Start|End)$/, '');
