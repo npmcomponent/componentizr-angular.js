@@ -1,5 +1,5 @@
 /**
- * @license AngularJS v1.2.0-91d074a
+ * @license AngularJS v1.2.0-e2c39df
  * (c) 2010-2012 Google, Inc. http://angularjs.org
  * License: MIT
  */
@@ -1594,7 +1594,7 @@ function setupModuleLoader(window) {
  * - `codeName` – `{string}` – Code name of the release, such as "jiggling-armfat".
  */
 var version = {
-  full: '1.2.0-91d074a',    // all of these placeholder strings will be replaced by grunt's
+  full: '1.2.0-e2c39df',    // all of these placeholder strings will be replaced by grunt's
   major: 1,    // package task
   minor: 2,
   dot: 0,
@@ -15394,7 +15394,7 @@ function classDirective(name, selector) {
  * @restrict AC
  *
  * @description
- * The `ngClass` allows you to set CSS classes on HTML an element, dynamically, by databinding
+ * The `ngClass` directive allows you to dynamically set CSS classes on an HTML element by databinding
  * an expression that represents all classes to be added.
  *
  * The directive won't add duplicate classes if a particular class was already set.
@@ -16351,20 +16351,19 @@ var ngIfDirective = ['$animate', function($animate) {
  * @description
  * Fetches, compiles and includes an external HTML fragment.
  *
- * Keep in mind that:
- *
- * -    by default, the template URL is restricted to the same domain and protocol as the
- *      application document.  This is done by calling {@link ng.$sce#getTrustedResourceUrl
- *      $sce.getTrustedResourceUrl} on it.  To load templates from other domains and/or protocols,
- *      you may either either {@link ng.$sceDelegateProvider#resourceUrlWhitelist whitelist them} or
- *      {@link ng.$sce#trustAsResourceUrl wrap it} into a trusted value.  Refer Angular's {@link
- *      ng.$sce Strict Contextual Escaping}.
- * -    in addition, the browser's
- *      {@link https://code.google.com/p/browsersec/wiki/Part2#Same-origin_policy_for_XMLHttpRequest
- *      Same Origin Policy} and {@link http://www.w3.org/TR/cors/ Cross-Origin Resource Sharing
- *      (CORS)} policy apply that may further restrict whether the template is successfully loaded.
- *      (e.g.  ngInclude won't work for cross-domain requests on all browsers and for `file://`
- *      access on some browsers)
+ * By default, the template URL is restricted to the same domain and protocol as the
+ * application document. This is done by calling {@link ng.$sce#getTrustedResourceUrl
+ * $sce.getTrustedResourceUrl} on it. To load templates from other domains or protocols
+ * you may either {@link ng.$sceDelegateProvider#resourceUrlWhitelist whitelist them} or
+ * {@link ng.$sce#trustAsResourceUrl wrap them} as trusted values. Refer to Angular's {@link
+ * ng.$sce Strict Contextual Escaping}.
+ * 
+ * In addition, the browser's
+ * {@link https://code.google.com/p/browsersec/wiki/Part2#Same-origin_policy_for_XMLHttpRequest
+ * Same Origin Policy} and {@link http://www.w3.org/TR/cors/ Cross-Origin Resource Sharing
+ * (CORS)} policy may further restrict whether the template is successfully loaded.
+ * For example, `ngInclude` won't work for cross-domain requests on all browsers and for `file://`
+ * access on some browsers.
  *
  * @animations
  * enter - animation is used to bring new content into the browser.
