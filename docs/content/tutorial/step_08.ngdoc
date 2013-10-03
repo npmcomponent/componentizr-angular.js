@@ -61,13 +61,12 @@ the same way as the phone list controller.
 
 __`app/js/controllers.js`:__
 <pre>
-function PhoneDetailCtrl($scope, $routeParams, $http) {
+var phonecatApp = angular.module('phonecatApp',[]);
+phonecatApp.controller('PhoneDetailCtrl', ['$scope', '$routeParams', '$http', function($scope, $routeParams, $http) {
   $http.get('phones/' + $routeParams.phoneId + '.json').success(function(data) {
     $scope.phone = data;
   });
-}
-
-//PhoneDetailCtrl.$inject = ['$scope', '$routeParams', '$http'];
+}]);
 </pre>
 
 To construct the URL for the HTTP request, we use `$routeParams.phoneId` extracted from the current
@@ -133,7 +132,7 @@ __`test/unit/controllersSpec.js`:__
 
       $routeParams.phoneId = 'xyz';
       scope = $rootScope.$new();
-      ctrl = $controller(PhoneDetailCtrl, {$scope: scope});
+      ctrl = $controller('PhoneDetailCtrl', {$scope: scope});
     }));
 
 

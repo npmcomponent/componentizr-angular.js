@@ -80,6 +80,10 @@ function PhoneListCtrl($scope) {
 
   $scope.orderProp = 'age';
 }
+
+var phonecatApp = angular.module('phonecatApp',[]);
+phonecatApp.controller('PhoneListCtrl', PhoneListCtrl);
+
 </pre>
 
 * We modified the `phones` model - the array of phones - and added an `age` property to each phone
