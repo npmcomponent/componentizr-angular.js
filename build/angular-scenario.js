@@ -9790,7 +9790,7 @@ if ( typeof module === "object" && module && typeof module.exports === "object" 
 })( window );
 
 /**
- * @license AngularJS v1.2.0-3b92d6c
+ * @license AngularJS v1.2.0-91d074a
  * (c) 2010-2012 Google, Inc. http://angularjs.org
  * License: MIT
  */
@@ -11386,7 +11386,7 @@ function setupModuleLoader(window) {
  * - `codeName` – `{string}` – Code name of the release, such as "jiggling-armfat".
  */
 var version = {
-  full: '1.2.0-3b92d6c',    // all of these placeholder strings will be replaced by grunt's
+  full: '1.2.0-91d074a',    // all of these placeholder strings will be replaced by grunt's
   major: 1,    // package task
   minor: 2,
   dot: 0,
@@ -14035,10 +14035,10 @@ function $TemplateCacheProvider() {
  * (a DOM element/tree) to a scope. Where:
  *
  *  * `scope` - A {@link ng.$rootScope.Scope Scope} to bind to.
- *  * `cloneAttachFn` - If `cloneAttachFn` is provided, then the link function will clone the
- *               `template` and call the `cloneAttachFn` function allowing the caller to attach the
- *               cloned elements to the DOM document at the appropriate place. The `cloneAttachFn` is
- *               called as: <br> `cloneAttachFn(clonedElement, scope)` where:
+ *  * `cloneAttachFn` - If `cloneAttachFn` is provided, then the link function will clone the `template`
+ *  and call the `cloneAttachFn` function allowing the caller to attach the
+ *  cloned elements to the DOM document at the appropriate place. The `cloneAttachFn` is
+ *  called as: <br> `cloneAttachFn(clonedElement, scope)` where:
  *
  *      * `clonedElement` - is a clone of the original `element` passed into the compiler.
  *      * `scope` - is the current scope with which the linking function is working with.
