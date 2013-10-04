@@ -1,5 +1,5 @@
 /**
- * @license AngularJS v1.2.0-5c048d5
+ * @license AngularJS v1.2.0-91510d0
  * (c) 2010-2012 Google, Inc. http://angularjs.org
  * License: MIT
  */
@@ -1595,7 +1595,7 @@ function setupModuleLoader(window) {
  * - `codeName` – `{string}` – Code name of the release, such as "jiggling-armfat".
  */
 var version = {
-  full: '1.2.0-5c048d5',    // all of these placeholder strings will be replaced by grunt's
+  full: '1.2.0-91510d0',    // all of these placeholder strings will be replaced by grunt's
   major: 1,    // package task
   minor: 2,
   dot: 0,
@@ -4963,8 +4963,9 @@ function $CompileProvider($provide) {
         if (directiveValue = directive.transclude) {
           assertNoDuplicate('transclusion', transcludeDirective, directive, $compileNode);
           transcludeDirective = directive;
-          terminalPriority = directive.priority;
+
           if (directiveValue == 'element') {
+            terminalPriority = directive.priority;
             $template = groupScan(compileNode, attrStart, attrEnd)
             $compileNode = templateAttrs.$$element =
                 jqLite(document.createComment(' ' + directiveName + ': ' + templateAttrs[directiveName] + ' '));
@@ -5241,7 +5242,7 @@ function $CompileProvider($provide) {
         childLinkFn && childLinkFn(scope, linkNode.childNodes, undefined, boundTranscludeFn);
 
         // POSTLINKING
-        for(i = 0, ii = postLinkFns.length; i < ii; i++) {
+        for(i = postLinkFns.length - 1; i >= 0; i--) {
           try {
             linkFn = postLinkFns[i];
             linkFn(scope, $element, attrs,
@@ -5474,7 +5475,7 @@ function $CompileProvider($provide) {
       }
 
       directives.push({
-        priority: 100,
+        priority: -100,
         compile: valueFn(function attrInterpolateLinkFn(scope, element, attr) {
           var $$observers = (attr.$$observers || (attr.$$observers = {}));
 
@@ -5492,6 +5493,7 @@ function $CompileProvider($provide) {
           // register any observers
           if (!interpolateFn) return;
 
+          // TODO(i): this should likely be attr.$set(name, iterpolateFn(scope) so that we reset the actual attr value
           attr[name] = interpolateFn(scope);
           ($$observers[name] || ($$observers[name] = [])).$$inter = true;
           (attr.$$observers && attr.$$observers[name].$$scope || scope).
@@ -14747,7 +14749,7 @@ var VALID_CLASS = 'ng-valid',
     </file>
  * </example>
  *
- * 
+ *
  */
 var NgModelController = ['$scope', '$exceptionHandler', '$attrs', '$element', '$parse',
     function($scope, $exceptionHandler, $attr, $element, $parse) {
