@@ -1,5 +1,5 @@
 /**
- * @license AngularJS v1.2.0-060017f
+ * @license AngularJS v1.2.0-d38bb51
  * (c) 2010-2012 Google, Inc. http://angularjs.org
  * License: MIT
  */
@@ -80,16 +80,6 @@ function minErr(module) {
 }
 
 ////////////////////////////////////
-
-/**
- * hasOwnProperty may be overwritten by a property of the same name, or entirely
- * absent from an object that does not inherit Object.prototype; this copy is
- * used instead
- */
-var hasOwnPropertyFn = Object.prototype.hasOwnProperty;
-var hasOwnPropertyLocal = function(obj, key) {
-  return hasOwnPropertyFn.call(obj, key);
-};
 
 /**
  * @ngdoc function
@@ -770,6 +760,8 @@ function shallowCopy(src, dst) {
   dst = dst || {};
 
   for(var key in src) {
+    // shallowCopy is only ever called by $compile nodeLinkFn, which has control over src
+    // so we don't need to worry hasOwnProperty here
     if (src.hasOwnProperty(key) && key.substr(0, 2) !== '$$') {
       dst[key] = src[key];
     }
@@ -1267,6 +1259,17 @@ function assertArgFn(arg, name, acceptArrayAnnotation) {
 }
 
 /**
+ * throw error if the name given is hasOwnProperty
+ * @param  {String} name    the name to test
+ * @param  {String} context the context in which the name is used, such as module or directive
+ */
+function assertNotHasOwnProperty(name, context) {
+  if (name === 'hasOwnProperty') {
+    throw ngMinErr('badname', "hasOwnProperty is not a valid {0} name", context);
+  }
+}
+
+/**
  * Return the value accessible from the object by path. Any undefined traversals are ignored
  * @param {Object} obj starting object
  * @param {string} path path to traverse
@@ -1302,6 +1305,8 @@ function getter(obj, path, bindFnToScope) {
  */
 
 function setupModuleLoader(window) {
+
+  var $injectorMinErr = minErr('$injector');
 
   function ensure(obj, name, factory) {
     return obj[name] || (obj[name] = factory());
@@ -1361,12 +1366,13 @@ function setupModuleLoader(window) {
      * @returns {module} new module with the {@link angular.Module} api.
      */
     return function module(name, requires, configFn) {
+      assertNotHasOwnProperty(name, 'module');
       if (requires && modules.hasOwnProperty(name)) {
         modules[name] = null;
       }
       return ensure(modules, name, function() {
         if (!requires) {
-          throw minErr('$injector')('nomod', "Module '{0}' is not available! You either misspelled the module name " +
+          throw $injectorMinErr('nomod', "Module '{0}' is not available! You either misspelled the module name " +
               "or forgot to load it. If registering a module ensure that you specify the dependencies as the second " +
               "argument.", name);
         }
@@ -1595,7 +1601,7 @@ function setupModuleLoader(window) {
  * - `codeName` – `{string}` – Code name of the release, such as "jiggling-armfat".
  */
 var version = {
-  full: '1.2.0-060017f',    // all of these placeholder strings will be replaced by grunt's
+  full: '1.2.0-d38bb51',    // all of these placeholder strings will be replaced by grunt's
   major: 1,    // package task
   minor: 2,
   dot: 0,
@@ -3071,6 +3077,7 @@ function createInjector(modulesToLoad) {
   }
 
   function provider(name, provider_) {
+    assertNotHasOwnProperty(name, 'service');
     if (isFunction(provider_) || isArray(provider_)) {
       provider_ = providerInjector.instantiate(provider_);
     }
@@ -3091,6 +3098,7 @@ function createInjector(modulesToLoad) {
   function value(name, value) { return factory(name, valueFn(value)); }
 
   function constant(name, value) {
+    assertNotHasOwnProperty(name, 'constant');
     providerCache[name] = value;
     instanceCache[name] = value;
   }
@@ -4325,6 +4333,7 @@ function $CompileProvider($provide) {
    * @returns {ng.$compileProvider} Self for chaining.
    */
    this.directive = function registerDirective(name, directiveFactory) {
+    assertNotHasOwnProperty(name, 'directive');
     if (isString(name)) {
       assertArg(directiveFactory, 'directiveFactory');
       if (!hasDirectives.hasOwnProperty(name)) {
@@ -5322,6 +5331,9 @@ function $CompileProvider($provide) {
           dst['class'] = (dst['class'] ? dst['class'] + ' ' : '') + value;
         } else if (key == 'style') {
           $element.attr('style', $element.attr('style') + ';' + value);
+          // `dst` will never contain hasOwnProperty as DOM parser won't let it.
+          // You will get an "InvalidCharacterError: DOM Exception 5" error if you
+          // have an attribute like "has-own-property" or "data-has-own-property", etc.
         } else if (key.charAt(0) != '$' && !dst.hasOwnProperty(key)) {
           dst[key] = value;
           dstAttr[key] = srcAttr[key];
@@ -5658,6 +5670,7 @@ function $ControllerProvider() {
    *    annotations in the array notation).
    */
   this.register = function(name, constructor) {
+    assertNotHasOwnProperty(name, 'controller');
     if (isObject(name)) {
       extend(controllers, name)
     } else {
@@ -8310,6 +8323,7 @@ Lexer.prototype = {
       text: ident
     };
 
+    // OPERATORS is our own object so we don't need to use special hasOwnPropertyFn
     if (OPERATORS.hasOwnProperty(ident)) {
       token.fn = OPERATORS[ident];
       token.json = OPERATORS[ident];
@@ -8958,6 +8972,9 @@ function cspSafeGetterFn(key0, key1, key2, key3, key4, fullExp) {
 }
 
 function getterFn(path, csp, fullExp) {
+  // Check whether the cache has this getter already.
+  // We can use hasOwnProperty directly on the cache because we ensure,
+  // see below, that the cache never stores a path called 'hasOwnProperty'
   if (getterFnCache.hasOwnProperty(path)) {
     return getterFnCache[path];
   }
@@ -9006,7 +9023,12 @@ function getterFn(path, csp, fullExp) {
     fn.toString = function() { return code; };
   }
 
-  return getterFnCache[path] = fn;
+  // Only cache the value if it's not going to mess up the cache object
+  // This is more performant that using Object.prototype.hasOwnProperty.call
+  if (path !== 'hasOwnProperty') {
+    getterFnCache[path] = fn;
+  }
+  return fn;
 }
 
 ///////////////////////////////////
@@ -9056,6 +9078,7 @@ function $ParseProvider() {
     return function(exp) {
       var lexer = new Lexer($sniffer.csp);
       var parser = new Parser(lexer, $filter, $sniffer.csp);
+      var parsedExpression;
 
       switch (typeof exp) {
         case 'string':
@@ -9063,7 +9086,15 @@ function $ParseProvider() {
             return cache[exp];
           }
 
-          return cache[exp] = parser.parse(exp, false);
+          parsedExpression = parser.parse(exp, false);
+
+          if (exp !== 'hasOwnProperty') {
+            // Only cache the value if it's not going to mess up the cache object
+            // This is more performant that using Object.prototype.hasOwnProperty.call
+            cache[exp] = parsedExpression;
+          }
+
+          return parsedExpression;
 
         case 'function':
           return exp;
@@ -13566,9 +13597,12 @@ function FormController(element, attrs) {
    * Input elements using ngModelController do this automatically when they are linked.
    */
   form.$addControl = function(control) {
+    // Breaking change - before, inputs whose name was "hasOwnProperty" were quietly ignored
+    // and not added to the scope.  Now we throw an error.
+    assertNotHasOwnProperty(control.$name, 'input');
     controls.push(control);
 
-    if (control.$name && !form.hasOwnProperty(control.$name)) {
+    if (control.$name) {
       form[control.$name] = control;
     }
   };
@@ -17264,6 +17298,7 @@ var ngRepeatDirective = ['$parse', '$animate', function($parse, $animate) {
            key = (collection === collectionKeys) ? index : collectionKeys[index];
            value = collection[key];
            trackById = trackByIdFn(key, value, index);
+           assertNotHasOwnProperty(trackById, '`track by` id');
            if(lastBlockMap.hasOwnProperty(trackById)) {
              block = lastBlockMap[trackById]
              delete lastBlockMap[trackById];
@@ -17286,6 +17321,7 @@ var ngRepeatDirective = ['$parse', '$animate', function($parse, $animate) {
 
           // remove existing items
           for (key in lastBlockMap) {
+            // lastBlockMap is our own object so we don't need to use special hasOwnPropertyFn
             if (lastBlockMap.hasOwnProperty(key)) {
               block = lastBlockMap[key];
               $animate.leave(block.elements);
@@ -18006,6 +18042,7 @@ var scriptDirective = ['$templateCache', function($templateCache) {
   };
 }];
 
+var ngOptionsMinErr = minErr('ngOptions');
 /**
  * @ngdoc directive
  * @name ng.directive:select
@@ -18154,10 +18191,11 @@ var selectDirective = ['$compile', '$parse', function($compile,   $parse) {
         ngModelCtrl = ngModelCtrl_;
         nullOption = nullOption_;
         unknownOption = unknownOption_;
-      }
+      };
 
 
       self.addOption = function(value) {
+        assertNotHasOwnProperty(value, '"option value"');
         optionsMap[value] = true;
 
         if (ngModelCtrl.$viewValue == value) {
@@ -18183,12 +18221,12 @@ var selectDirective = ['$compile', '$parse', function($compile,   $parse) {
         $element.prepend(unknownOption);
         $element.val(unknownVal);
         unknownOption.prop('selected', true); // needed for IE
-      }
+      };
 
 
       self.hasOption = function(value) {
         return optionsMap.hasOwnProperty(value);
-      }
+      };
 
       $scope.$on('$destroy', function() {
         // disable unknown option so that we don't do work when the whole select is being destroyed
@@ -18306,7 +18344,7 @@ var selectDirective = ['$compile', '$parse', function($compile,   $parse) {
         var match;
 
         if (! (match = optionsExp.match(NG_OPTIONS_REGEXP))) {
-          throw minErr('ngOptions')('iexp',
+          throw ngOptionsMinErr('iexp',
             "Expected expression in form of '_select_ (as _label_)? for (_key_,)?_value_ in _collection_' but got '{0}'. Element: {1}",
             optionsExp, startingTag(selectElement));
         }
@@ -18345,7 +18383,7 @@ var selectDirective = ['$compile', '$parse', function($compile,   $parse) {
             var optionGroup,
                 collection = valuesFn(scope) || [],
                 locals = {},
-                key, value, optionElement, index, groupIndex, length, groupLength;
+                key, value, optionElement, index, groupIndex, length, groupLength, trackIndex;
 
             if (multiple) {
               value = [];
@@ -18360,7 +18398,7 @@ var selectDirective = ['$compile', '$parse', function($compile,   $parse) {
                     key = optionElement.val();
                     if (keyName) locals[keyName] = key;
                     if (trackFn) {
-                      for (var trackIndex = 0; trackIndex < collection.length; trackIndex++) {
+                      for (trackIndex = 0; trackIndex < collection.length; trackIndex++) {
                         locals[valueName] = collection[trackIndex];
                         if (trackFn(scope, locals) == key) break;
                       }
@@ -18379,7 +18417,7 @@ var selectDirective = ['$compile', '$parse', function($compile,   $parse) {
                 value = null;
               } else {
                 if (trackFn) {
-                  for (var trackIndex = 0; trackIndex < collection.length; trackIndex++) {
+                  for (trackIndex = 0; trackIndex < collection.length; trackIndex++) {
                     locals[valueName] = collection[trackIndex];
                     if (trackFn(scope, locals) == key) {
                       value = valueFn(scope, locals);
@@ -18452,7 +18490,7 @@ var selectDirective = ['$compile', '$parse', function($compile,   $parse) {
               optionGroupNames.push(optionGroupName);
             }
             if (multiple) {
-              selected = selectedSet.remove(trackFn ? trackFn(scope, locals) : valueFn(scope, locals)) != undefined;
+              selected = selectedSet.remove(trackFn ? trackFn(scope, locals) : valueFn(scope, locals)) !== undefined;
             } else {
               if (trackFn) {
                 var modelCast = {};
@@ -18570,7 +18608,7 @@ var selectDirective = ['$compile', '$parse', function($compile,   $parse) {
         }
       }
     }
-  }
+  };
 }];
 
 var optionDirective = ['$interpolate', function($interpolate) {
@@ -18619,7 +18657,7 @@ var optionDirective = ['$interpolate', function($interpolate) {
         });
       };
     }
-  }
+  };
 }];
 
 var styleDirective = valueFn({
