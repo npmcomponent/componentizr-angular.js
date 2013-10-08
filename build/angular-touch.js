@@ -1,5 +1,5 @@
 /**
- * @license AngularJS v1.2.0-96d6b81
+ * @license AngularJS v1.2.0-406105c
  * (c) 2010-2012 Google, Inc. http://angularjs.org
  * License: MIT
  */
@@ -108,12 +108,12 @@ ngTouch.factory('$swipe', [function() {
         totalX = 0;
         totalY = 0;
         lastPos = startCoords;
-        eventHandlers['start'] && eventHandlers['start'](startCoords);
+        eventHandlers['start'] && eventHandlers['start'](startCoords, event);
       });
 
       element.on('touchcancel', function(event) {
         active = false;
-        eventHandlers['cancel'] && eventHandlers['cancel']();
+        eventHandlers['cancel'] && eventHandlers['cancel'](event);
       });
 
       element.on('touchmove mousemove', function(event) {
@@ -141,20 +141,19 @@ ngTouch.factory('$swipe', [function() {
         if (totalY > totalX) {
           // Allow native scrolling to take over.
           active = false;
-          eventHandlers['cancel'] && eventHandlers['cancel']();
+          eventHandlers['cancel'] && eventHandlers['cancel'](event);
           return;
         } else {
           // Prevent the browser from scrolling.
           event.preventDefault();
-
-          eventHandlers['move'] && eventHandlers['move'](coords);
+          eventHandlers['move'] && eventHandlers['move'](coords, event);
         }
       });
 
       element.on('touchend mouseup', function(event) {
         if (!active) return;
         active = false;
-        eventHandlers['end'] && eventHandlers['end'](getCoordinates(event));
+        eventHandlers['end'] && eventHandlers['end'](getCoordinates(event), event);
       });
     }
   };
@@ -524,18 +523,18 @@ function makeSwipeDirective(directiveName, direction, eventName) {
       }
 
       $swipe.bind(element, {
-        'start': function(coords) {
+        'start': function(coords, event) {
           startCoords = coords;
           valid = true;
         },
-        'cancel': function() {
+        'cancel': function(event) {
           valid = false;
         },
-        'end': function(coords) {
+        'end': function(coords, event) {
           if (validSwipe(coords)) {
             scope.$apply(function() {
               element.triggerHandler(eventName);
-              swipeHandler(scope);
+              swipeHandler(scope, {$event: event});
             });
           }
         }
