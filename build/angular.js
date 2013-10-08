@@ -1,5 +1,5 @@
 /**
- * @license AngularJS v1.2.0-207ac8f
+ * @license AngularJS v1.2.0-7d241fc
  * (c) 2010-2012 Google, Inc. http://angularjs.org
  * License: MIT
  */
@@ -1601,7 +1601,7 @@ function setupModuleLoader(window) {
  * - `codeName` – `{string}` – Code name of the release, such as "jiggling-armfat".
  */
 var version = {
-  full: '1.2.0-207ac8f',    // all of these placeholder strings will be replaced by grunt's
+  full: '1.2.0-7d241fc',    // all of these placeholder strings will be replaced by grunt's
   major: 1,    // package task
   minor: 2,
   dot: 0,
@@ -2524,13 +2524,16 @@ forEach({
 
   triggerHandler: function(element, eventName, eventData) {
     var eventFns = (JQLiteExpandoStore(element, 'events') || {})[eventName];
-    eventData = eventData || {
+    
+    eventData = eventData || [];
+
+    var event = [{
       preventDefault: noop,
       stopPropagation: noop
-    };
+    }];
 
     forEach(eventFns, function(fn) {
-      fn.call(element, eventData);
+      fn.apply(element, event.concat(eventData));
     });
   }
 }, function(fn, name){
