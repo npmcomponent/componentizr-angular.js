@@ -1,5 +1,5 @@
 /**
- * @license AngularJS v1.2.0-2d50457
+ * @license AngularJS v1.2.0-96d6b81
  * (c) 2010-2012 Google, Inc. http://angularjs.org
  * License: MIT
  */
@@ -1601,7 +1601,7 @@ function setupModuleLoader(window) {
  * - `codeName` – `{string}` – Code name of the release, such as "jiggling-armfat".
  */
 var version = {
-  full: '1.2.0-2d50457',    // all of these placeholder strings will be replaced by grunt's
+  full: '1.2.0-96d6b81',    // all of these placeholder strings will be replaced by grunt's
   major: 1,    // package task
   minor: 2,
   dot: 0,
@@ -14363,11 +14363,6 @@ var inputType = {
 };
 
 
-function isEmpty(value) {
-  return isUndefined(value) || value === '' || value === null || value !== value;
-}
-
-
 function textInputType(scope, element, attr, ctrl, $sniffer, $browser) {
 
   var listener = function() {
@@ -14424,7 +14419,7 @@ function textInputType(scope, element, attr, ctrl, $sniffer, $browser) {
 
 
   ctrl.$render = function() {
-    element.val(isEmpty(ctrl.$viewValue) ? '' : ctrl.$viewValue);
+    element.val(ctrl.$isEmpty(ctrl.$viewValue) ? '' : ctrl.$viewValue);
   };
 
   // pattern validator
@@ -14433,7 +14428,7 @@ function textInputType(scope, element, attr, ctrl, $sniffer, $browser) {
       match;
 
   var validate = function(regexp, value) {
-    if (isEmpty(value) || regexp.test(value)) {
+    if (ctrl.$isEmpty(value) || regexp.test(value)) {
       ctrl.$setValidity('pattern', true);
       return value;
     } else {
@@ -14447,7 +14442,7 @@ function textInputType(scope, element, attr, ctrl, $sniffer, $browser) {
     if (match) {
       pattern = new RegExp(match[1], match[2]);
       patternValidator = function(value) {
-        return validate(pattern, value)
+        return validate(pattern, value);
       };
     } else {
       patternValidator = function(value) {
@@ -14470,7 +14465,7 @@ function textInputType(scope, element, attr, ctrl, $sniffer, $browser) {
   if (attr.ngMinlength) {
     var minlength = int(attr.ngMinlength);
     var minLengthValidator = function(value) {
-      if (!isEmpty(value) && value.length < minlength) {
+      if (!ctrl.$isEmpty(value) && value.length < minlength) {
         ctrl.$setValidity('minlength', false);
         return undefined;
       } else {
@@ -14487,7 +14482,7 @@ function textInputType(scope, element, attr, ctrl, $sniffer, $browser) {
   if (attr.ngMaxlength) {
     var maxlength = int(attr.ngMaxlength);
     var maxLengthValidator = function(value) {
-      if (!isEmpty(value) && value.length > maxlength) {
+      if (!ctrl.$isEmpty(value) && value.length > maxlength) {
         ctrl.$setValidity('maxlength', false);
         return undefined;
       } else {
@@ -14505,7 +14500,7 @@ function numberInputType(scope, element, attr, ctrl, $sniffer, $browser) {
   textInputType(scope, element, attr, ctrl, $sniffer, $browser);
 
   ctrl.$parsers.push(function(value) {
-    var empty = isEmpty(value);
+    var empty = ctrl.$isEmpty(value);
     if (empty || NUMBER_REGEXP.test(value)) {
       ctrl.$setValidity('number', true);
       return value === '' ? null : (empty ? value : parseFloat(value));
@@ -14516,13 +14511,13 @@ function numberInputType(scope, element, attr, ctrl, $sniffer, $browser) {
   });
 
   ctrl.$formatters.push(function(value) {
-    return isEmpty(value) ? '' : '' + value;
+    return ctrl.$isEmpty(value) ? '' : '' + value;
   });
 
   if (attr.min) {
     var min = parseFloat(attr.min);
     var minValidator = function(value) {
-      if (!isEmpty(value) && value < min) {
+      if (!ctrl.$isEmpty(value) && value < min) {
         ctrl.$setValidity('min', false);
         return undefined;
       } else {
@@ -14538,7 +14533,7 @@ function numberInputType(scope, element, attr, ctrl, $sniffer, $browser) {
   if (attr.max) {
     var max = parseFloat(attr.max);
     var maxValidator = function(value) {
-      if (!isEmpty(value) && value > max) {
+      if (!ctrl.$isEmpty(value) && value > max) {
         ctrl.$setValidity('max', false);
         return undefined;
       } else {
@@ -14553,7 +14548,7 @@ function numberInputType(scope, element, attr, ctrl, $sniffer, $browser) {
 
   ctrl.$formatters.push(function(value) {
 
-    if (isEmpty(value) || isNumber(value)) {
+    if (ctrl.$isEmpty(value) || isNumber(value)) {
       ctrl.$setValidity('number', true);
       return value;
     } else {
@@ -14567,7 +14562,7 @@ function urlInputType(scope, element, attr, ctrl, $sniffer, $browser) {
   textInputType(scope, element, attr, ctrl, $sniffer, $browser);
 
   var urlValidator = function(value) {
-    if (isEmpty(value) || URL_REGEXP.test(value)) {
+    if (ctrl.$isEmpty(value) || URL_REGEXP.test(value)) {
       ctrl.$setValidity('url', true);
       return value;
     } else {
@@ -14584,7 +14579,7 @@ function emailInputType(scope, element, attr, ctrl, $sniffer, $browser) {
   textInputType(scope, element, attr, ctrl, $sniffer, $browser);
 
   var emailValidator = function(value) {
-    if (isEmpty(value) || EMAIL_REGEXP.test(value)) {
+    if (ctrl.$isEmpty(value) || EMAIL_REGEXP.test(value)) {
       ctrl.$setValidity('email', true);
       return value;
     } else {
@@ -14634,6 +14629,11 @@ function checkboxInputType(scope, element, attr, ctrl) {
 
   ctrl.$render = function() {
     element[0].checked = ctrl.$viewValue;
+  };
+
+  // Override the standard `$isEmpty` because a value of `false` means empty in a checkbox.
+  ctrl.$isEmpty = function(value) {
+    return value !== trueValue;
   };
 
   ctrl.$formatters.push(function(value) {
@@ -14971,6 +14971,25 @@ var NgModelController = ['$scope', '$exceptionHandler', '$attrs', '$element', '$
    */
   this.$render = noop;
 
+  /**
+   * @ngdoc function
+   * @name { ng.directive:ngModel.NgModelController#$isEmpty
+   * @methodOf ng.directive:ngModel.NgModelController
+   *
+   * @description
+   * This is called when we need to determine if the value of the input is empty.
+   * 
+   * For instance, the required directive does this to work out if the input has data or not.
+   * The default `$isEmpty` function checks whether the value is `undefined`, `''`, `null` or `NaN`.
+   * 
+   * You can override this for input directives whose concept of being empty is different to the
+   * default. The `checkboxInputType` directive does this because in its case a value of `false`
+   * implies empty.
+   */
+  this.$isEmpty = function(value) {
+    return isUndefined(value) || value === '' || value === null || value !== value;
+  };
+
   var parentForm = $element.inheritedData('$formController') || nullFormCtrl,
       invalidCount = 0, // used to easily determine if we are valid
       $error = this.$error = {}; // keep invalid keys here
@@ -15245,7 +15264,7 @@ var requiredDirective = function() {
       attr.required = true; // force truthy in case we are on non input element
 
       var validator = function(value) {
-        if (attr.required && (isEmpty(value) || value === false)) {
+        if (attr.required && ctrl.$isEmpty(value)) {
           ctrl.$setValidity('required', false);
           return;
         } else {
@@ -15306,7 +15325,7 @@ var requiredDirective = function() {
 
         it('should be invalid if empty', function() {
           input('names').enter('');
-          expect(binding('names')).toEqual('[]');
+          expect(binding('names')).toEqual('');
           expect(binding('myForm.namesInput.$valid')).toEqual('false');
           expect(element('span.error').css('display')).not().toBe('none');
         });
@@ -15321,6 +15340,9 @@ var ngListDirective = function() {
           separator = match && new RegExp(match[1]) || attr.ngList || ',';
 
       var parse = function(viewValue) {
+        // If the viewValue is invalid (say required but empty) it will be `undefined`
+        if (isUndefined(viewValue)) return;
+
         var list = [];
 
         if (viewValue) {
@@ -15340,6 +15362,11 @@ var ngListDirective = function() {
 
         return undefined;
       });
+
+      // Override the standard $isEmpty because an empty array means the input is empty.
+      ctrl.$isEmpty = function(value) {
+        return !value || !value.length;
+      };
     }
   };
 };
