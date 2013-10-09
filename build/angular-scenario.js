@@ -9790,7 +9790,7 @@ if ( typeof module === "object" && module && typeof module.exports === "object" 
 })( window );
 
 /**
- * @license AngularJS v1.2.0-84a7e3e
+ * @license AngularJS v1.2.0-4725a28
  * (c) 2010-2012 Google, Inc. http://angularjs.org
  * License: MIT
  */
@@ -11393,7 +11393,7 @@ function setupModuleLoader(window) {
  * - `codeName` – `{string}` – Code name of the release, such as "jiggling-armfat".
  */
 var version = {
-  full: '1.2.0-84a7e3e',    // all of these placeholder strings will be replaced by grunt's
+  full: '1.2.0-4725a28',    // all of these placeholder strings will be replaced by grunt's
   major: 1,    // package task
   minor: 2,
   dot: 0,
@@ -13058,7 +13058,7 @@ function createInjector(modulesToLoad) {
  * @example
    <example>
      <file name="index.html">
-       <div ng-controller="MainCtrl">
+       <div id="scrollArea" ng-controller="ScrollCtrl">
          <a ng-click="gotoBottom()">Go to bottom</a>
          <a id="bottom"></a> You're at the bottom!
        </div>
@@ -13076,6 +13076,11 @@ function createInjector(modulesToLoad) {
        }
      </file>
      <file name="style.css">
+       #scrollArea {
+         height: 350px;
+         overflow: auto;
+       }
+
        #bottom {
          display: block;
          margin-top: 2000px;
@@ -17768,8 +17773,11 @@ function $LocationProvider(){
  * @description
  * Simple service for logging. Default implementation writes the message
  * into the browser's console (if present).
- *
+ * 
  * The main purpose of this service is to simplify debugging and troubleshooting.
+ *
+ * The default is not to log `debug` messages. You can use
+ * {@link ng.$logProvider ng.$logProvider#debugEnabled} to change this.
  *
  * @example
    <example>
