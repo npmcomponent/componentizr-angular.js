@@ -1,5 +1,5 @@
 /**
- * @license AngularJS v1.2.0-aec6988
+ * @license AngularJS v1.2.0-a56bcfd
  * (c) 2010-2012 Google, Inc. http://angularjs.org
  * License: MIT
  */
@@ -1601,7 +1601,7 @@ function setupModuleLoader(window) {
  * - `codeName` – `{string}` – Code name of the release, such as "jiggling-armfat".
  */
 var version = {
-  full: '1.2.0-aec6988',    // all of these placeholder strings will be replaced by grunt's
+  full: '1.2.0-a56bcfd',    // all of these placeholder strings will be replaced by grunt's
   major: 1,    // package task
   minor: 2,
   dot: 0,
@@ -1714,8 +1714,7 @@ function publishExternalAPI(angular){
         $sniffer: $SnifferProvider,
         $templateCache: $TemplateCacheProvider,
         $timeout: $TimeoutProvider,
-        $window: $WindowProvider,
-        $$urlUtils: $$UrlUtilsProvider
+        $window: $WindowProvider
       });
     }
   ]);
@@ -4594,9 +4593,9 @@ function $CompileProvider($provide) {
 
   this.$get = [
             '$injector', '$interpolate', '$exceptionHandler', '$http', '$templateCache', '$parse',
-            '$controller', '$rootScope', '$document', '$sce', '$$urlUtils', '$animate',
+            '$controller', '$rootScope', '$document', '$sce', '$animate',
     function($injector,   $interpolate,   $exceptionHandler,   $http,   $templateCache,   $parse,
-             $controller,   $rootScope,   $document,   $sce,   $$urlUtils, $animate) {
+             $controller,   $rootScope,   $document,   $sce,   $animate) {
 
     var Attributes = function(element, attr) {
       this.$$element = element;
@@ -4688,9 +4687,9 @@ function $CompileProvider($provide) {
           // sanitize a[href] and img[src] values
           if ((nodeName === 'A' && key === 'href') ||
               (nodeName === 'IMG' && key === 'src')) {
-            // NOTE: $$urlUtils.resolve() doesn't support IE < 8 so we don't sanitize for that case.
+            // NOTE: urlResolve() doesn't support IE < 8 so we don't sanitize for that case.
             if (!msie || msie >= 8 ) {
-              normalizedVal = $$urlUtils.resolve(value);
+              normalizedVal = urlResolve(value).href;
               if (normalizedVal !== '') {
                 if ((key === 'href' && !normalizedVal.match(aHrefSanitizationWhitelist)) ||
                     (key === 'src' && !normalizedVal.match(imgSrcSanitizationWhitelist))) {
@@ -6083,8 +6082,8 @@ function $HttpProvider() {
    */
   var responseInterceptorFactories = this.responseInterceptors = [];
 
-  this.$get = ['$httpBackend', '$browser', '$cacheFactory', '$rootScope', '$q', '$injector', '$$urlUtils',
-      function($httpBackend, $browser, $cacheFactory, $rootScope, $q, $injector, $$urlUtils) {
+  this.$get = ['$httpBackend', '$browser', '$cacheFactory', '$rootScope', '$q', '$injector',
+      function($httpBackend, $browser, $cacheFactory, $rootScope, $q, $injector) {
 
     var defaultCache = $cacheFactory('$http');
 
@@ -6600,7 +6599,7 @@ function $HttpProvider() {
       config.headers = headers;
       config.method = uppercase(config.method);
 
-      var xsrfValue = $$urlUtils.isSameOrigin(config.url)
+      var xsrfValue = urlIsSameOrigin(config.url)
           ? $browser.cookies()[config.xsrfCookieName || defaults.xsrfCookieName]
           : undefined;
       if (xsrfValue) {
@@ -7069,8 +7068,7 @@ function createHttpBackend($browser, XHR, $browserDefer, callbacks, rawDocument,
     }
 
     function completeRequest(callback, status, response, headersString) {
-      // URL_MATCH is defined in src/service/location.js
-      var protocol = (url.match(SERVER_MATCH) || ['', locationProtocol])[1];
+      var protocol = locationProtocol || urlResolve(url).protocol;
 
       // cancel timeout and subsequent timeout promise resolution
       timeoutId && $browserDefer.cancel(timeoutId);
@@ -7511,8 +7509,7 @@ function $LocaleProvider(){
   };
 }
 
-var SERVER_MATCH = /^([^:]+):\/\/(\w+:{0,1}\w*@)?(\{?[\w\.-]*\}?)(:([0-9]+))?(\/[^\?#]*)?(\?([^#]*))?(#(.*))?$/,
-    PATH_MATCH = /^([^\?#]*)(\?([^#]*))?(#(.*))?$/,
+var PATH_MATCH = /^([^\?#]*)(\?([^#]*))?(#(.*))?$/,
     DEFAULT_PORTS = {'http': 80, 'https': 443, 'ftp': 21};
 var $locationMinErr = minErr('$location');
 
@@ -7534,39 +7531,40 @@ function encodePath(path) {
   return segments.join('/');
 }
 
-function matchUrl(url, obj) {
-  var match = SERVER_MATCH.exec(url);
+function parseAbsoluteUrl(absoluteUrl, locationObj) {
+  var parsedUrl = urlResolve(absoluteUrl);
 
-  obj.$$protocol = match[1];
-  obj.$$host = match[3];
-  obj.$$port = int(match[5]) || DEFAULT_PORTS[match[1]] || null;
+  locationObj.$$protocol = parsedUrl.protocol;
+  locationObj.$$host = parsedUrl.hostname;
+  locationObj.$$port = int(parsedUrl.port) || DEFAULT_PORTS[parsedUrl.protocol] || null;
 }
 
-function matchAppUrl(url, obj) {
-  var match = PATH_MATCH.exec(url);
 
-  obj.$$path = decodeURIComponent(match[1]);
-  obj.$$search = parseKeyValue(match[3]);
-  obj.$$hash = decodeURIComponent(match[5] || '');
+function parseAppUrl(relativeUrl, locationObj) {
+  var prefixed = (relativeUrl.charAt(0) !== '/');
+  if (prefixed) {
+    relativeUrl = '/' + relativeUrl;
+  }
+  var match = urlResolve(relativeUrl);
+  locationObj.$$path = decodeURIComponent(prefixed && match.pathname.charAt(0) === '/' ? match.pathname.substring(1) : match.pathname);
+  locationObj.$$search = parseKeyValue(match.search);
+  locationObj.$$hash = decodeURIComponent(match.hash);
 
   // make sure path starts with '/';
-  if (obj.$$path && obj.$$path.charAt(0) != '/') obj.$$path = '/' + obj.$$path;
+  if (locationObj.$$path && locationObj.$$path.charAt(0) != '/') locationObj.$$path = '/' + locationObj.$$path;
 }
 
-
-function composeProtocolHostPort(protocol, host, port) {
-  return protocol + '://' + host + (port == DEFAULT_PORTS[protocol] ? '' : ':' + port);
-}
 
 /**
  *
  * @param {string} begin
  * @param {string} whole
- * @param {string} otherwise
- * @returns {string} returns text from whole after begin or otherwise if it does not begin with expected string.
+ * @returns {string} returns text from whole after begin or undefined if it does not begin with expected string.
  */
-function beginsWith(begin, whole, otherwise) {
-  return whole.indexOf(begin) == 0 ? whole.substr(begin.length) : otherwise;
+function beginsWith(begin, whole) {
+  if (whole.indexOf(begin) == 0) {
+    return whole.substr(begin.length);
+  }
 }
 
 
@@ -7598,20 +7596,22 @@ function LocationHtml5Url(appBase, basePrefix) {
   this.$$html5 = true;
   basePrefix = basePrefix || '';
   var appBaseNoFile = stripFile(appBase);
+  parseAbsoluteUrl(appBase, this);
+
+
   /**
    * Parse given html5 (regular) url string into properties
    * @param {string} newAbsoluteUrl HTML5 url
    * @private
    */
   this.$$parse = function(url) {
-    var parsed = {}
-    matchUrl(url, parsed);
     var pathUrl = beginsWith(appBaseNoFile, url);
     if (!isString(pathUrl)) {
       throw $locationMinErr('ipthprfx', 'Invalid url "{0}", missing path prefix "{1}".', url, appBaseNoFile);
     }
-    matchAppUrl(pathUrl, parsed);
-    extend(this, parsed);
+
+    parseAppUrl(pathUrl, this);
+
     if (!this.$$path) {
       this.$$path = '/';
     }
@@ -7662,7 +7662,7 @@ function LocationHtml5Url(appBase, basePrefix) {
 function LocationHashbangUrl(appBase, hashPrefix) {
   var appBaseNoFile = stripFile(appBase);
 
-  matchUrl(appBase, this);
+  parseAbsoluteUrl(appBase, this);
 
 
   /**
@@ -7681,7 +7681,7 @@ function LocationHashbangUrl(appBase, hashPrefix) {
     if (!isString(withoutHashUrl)) {
       throw $locationMinErr('ihshprfx', 'Invalid url "{0}", missing hash prefix "{1}".', url, hashPrefix);
     }
-    matchAppUrl(withoutHashUrl, this);
+    parseAppUrl(withoutHashUrl, this);
     this.$$compose();
   };
 
@@ -11120,7 +11120,7 @@ function adjustMatchers(matchers) {
  *      // The blacklist overrides the whitelist so the open redirect here is blocked.
  *      $sceDelegateProvider.resourceUrlBlacklist([
  *        'http://myapp.example.com/clickThru**']);
- *      }); 
+ *      });
  * </pre>
  */
 
@@ -11196,8 +11196,8 @@ function $SceDelegateProvider() {
     return resourceUrlBlacklist;
   };
 
-  this.$get = ['$log', '$document', '$injector', '$$urlUtils', function(
-                $log,   $document,   $injector,   $$urlUtils) {
+  this.$get = ['$log', '$document', '$injector', function(
+                $log,   $document,   $injector) {
 
     var htmlSanitizer = function htmlSanitizer(html) {
       throw $sceMinErr('unsafe', 'Attempting to use an unsafe value in a safe context.');
@@ -11210,7 +11210,7 @@ function $SceDelegateProvider() {
 
     function matchUrl(matcher, parsedUrl) {
       if (matcher === 'self') {
-        return $$urlUtils.isSameOrigin(parsedUrl);
+        return urlIsSameOrigin(parsedUrl);
       } else {
         // definitely a regex.  See adjustMatchers()
         return !!matcher.exec(parsedUrl.href);
@@ -11218,7 +11218,7 @@ function $SceDelegateProvider() {
     }
 
     function isResourceUrlAllowedByPolicy(url) {
-      var parsedUrl = $$urlUtils.resolve(url.toString(), true);
+      var parsedUrl = urlResolve(url.toString());
       var i, n, allowed = false;
       // Ensure that at least one item from the whitelist allows this url.
       for (i = 0, n = resourceUrlWhitelist.length; i < n; i++) {
@@ -12309,122 +12309,104 @@ function $TimeoutProvider() {
   }];
 }
 
-function $$UrlUtilsProvider() {
-  this.$get = [function() {
-    var urlParsingNode = document.createElement("a"),
-        // NOTE:  The usage of window and document instead of $window and $document here is
-        // deliberate.  This service depends on the specific behavior of anchor nodes created by the
-        // browser (resolving and parsing URLs) that is unlikely to be provided by mock objects and
-        // cause us to break tests.  In addition, when the browser resolves a URL for XHR, it
-        // doesn't know about mocked locations and resolves URLs to the real document - which is
-        // exactly the behavior needed here.  There is little value is mocking these our for this
-        // service.
-        originUrl = resolve(window.location.href, true);
+// NOTE:  The usage of window and document instead of $window and $document here is
+// deliberate.  This service depends on the specific behavior of anchor nodes created by the
+// browser (resolving and parsing URLs) that is unlikely to be provided by mock objects and
+// cause us to break tests.  In addition, when the browser resolves a URL for XHR, it
+// doesn't know about mocked locations and resolves URLs to the real document - which is
+// exactly the behavior needed here.  There is little value is mocking these out for this
+// service.
+var urlParsingNode = document.createElement("a");
+var originUrl = urlResolve(window.location.href, true);
 
-    /**
-     * @description
-     * Normalizes and optionally parses a URL.
-     *
-     * NOTE:  This is a private service.  The API is subject to change unpredictably in any commit.
-     *
-     * Implementation Notes for non-IE browsers
-     * ----------------------------------------
-     * Assigning a URL to the href property of an anchor DOM node, even one attached to the DOM,
-     * results both in the normalizing and parsing of the URL.  Normalizing means that a relative
-     * URL will be resolved into an absolute URL in the context of the application document.
-     * Parsing means that the anchor node's host, hostname, protocol, port, pathname and related
-     * properties are all populated to reflect the normalized URL.  This approach has wide
-     * compatibility - Safari 1+, Mozilla 1+, Opera 7+,e etc.  See
-     * http://www.aptana.com/reference/html/api/HTMLAnchorElement.html
-     *
-     * Implementation Notes for IE
-     * ---------------------------
-     * IE >= 8 and <= 10 normalizes the URL when assigned to the anchor node similar to the other
-     * browsers.  However, the parsed components will not be set if the URL assigned did not specify
-     * them.  (e.g. if you assign a.href = "foo", then a.protocol, a.host, etc. will be empty.)  We
-     * work around that by performing the parsing in a 2nd step by taking a previously normalized
-     * URL (e.g. by assining to a.href) and assigning it a.href again.  This correctly populates the
-     * properties such as protocol, hostname, port, etc.
-     *
-     * IE7 does not normalize the URL when assigned to an anchor node.  (Apparently, it does, if one
-     * uses the inner HTML approach to assign the URL as part of an HTML snippet -
-     * http://stackoverflow.com/a/472729)  However, setting img[src] does normalize the URL.
-     * Unfortunately, setting img[src] to something like "javascript:foo" on IE throws an exception.
-     * Since the primary usage for normalizing URLs is to sanitize such URLs, we can't use that
-     * method and IE < 8 is unsupported.
-     *
-     * References:
-     *   http://developer.mozilla.org/en-US/docs/Web/API/HTMLAnchorElement
-     *   http://www.aptana.com/reference/html/api/HTMLAnchorElement.html
-     *   http://url.spec.whatwg.org/#urlutils
-     *   https://github.com/angular/angular.js/pull/2902
-     *   http://james.padolsey.com/javascript/parsing-urls-with-the-dom/
-     *
-     * @param {string} url The URL to be parsed.
-     * @param {boolean=} parse When true, returns an object for the parsed URL.  Otherwise, returns
-     *   a single string that is the normalized URL.
-     * @returns {object|string} When parse is true, returns the normalized URL as a string.
-     * Otherwise, returns an object with the following members.
-     *
-     *   | member name   | Description    |
-     *   |---------------|----------------|
-     *   | href          | A normalized version of the provided URL if it was not an absolute URL |
-     *   | protocol      | The protocol including the trailing colon                              |
-     *   | host          | The host and port (if the port is non-default) of the normalizedUrl    |
-     *
-     * These fields from the UrlUtils interface are currently not needed and hence not returned.
-     *
-     *   | member name   | Description    |
-     *   |---------------|----------------|
-     *   | hostname      | The host without the port of the normalizedUrl                         |
-     *   | pathname      | The path following the host in the normalizedUrl                       |
-     *   | hash          | The URL hash if present                                                |
-     *   | search        | The query string                                                       |
-     *
-     */
-    function resolve(url, parse) {
-      var href = url;
-      if (msie <= 11) {
-        // Normalize before parse.  Refer Implementation Notes on why this is
-        // done in two steps on IE.
-        urlParsingNode.setAttribute("href", href);
-        href = urlParsingNode.href;
-      }
-      urlParsingNode.setAttribute('href', href);
+/**
+ *
+ * Implementation Notes for non-IE browsers
+ * ----------------------------------------
+ * Assigning a URL to the href property of an anchor DOM node, even one attached to the DOM,
+ * results both in the normalizing and parsing of the URL.  Normalizing means that a relative
+ * URL will be resolved into an absolute URL in the context of the application document.
+ * Parsing means that the anchor node's host, hostname, protocol, port, pathname and related
+ * properties are all populated to reflect the normalized URL.  This approach has wide
+ * compatibility - Safari 1+, Mozilla 1+, Opera 7+,e etc.  See
+ * http://www.aptana.com/reference/html/api/HTMLAnchorElement.html
+ *
+ * Implementation Notes for IE
+ * ---------------------------
+ * IE >= 8 and <= 10 normalizes the URL when assigned to the anchor node similar to the other
+ * browsers.  However, the parsed components will not be set if the URL assigned did not specify
+ * them.  (e.g. if you assign a.href = "foo", then a.protocol, a.host, etc. will be empty.)  We
+ * work around that by performing the parsing in a 2nd step by taking a previously normalized
+ * URL (e.g. by assining to a.href) and assigning it a.href again.  This correctly populates the
+ * properties such as protocol, hostname, port, etc.
+ *
+ * IE7 does not normalize the URL when assigned to an anchor node.  (Apparently, it does, if one
+ * uses the inner HTML approach to assign the URL as part of an HTML snippet -
+ * http://stackoverflow.com/a/472729)  However, setting img[src] does normalize the URL.
+ * Unfortunately, setting img[src] to something like "javascript:foo" on IE throws an exception.
+ * Since the primary usage for normalizing URLs is to sanitize such URLs, we can't use that
+ * method and IE < 8 is unsupported.
+ *
+ * References:
+ *   http://developer.mozilla.org/en-US/docs/Web/API/HTMLAnchorElement
+ *   http://www.aptana.com/reference/html/api/HTMLAnchorElement.html
+ *   http://url.spec.whatwg.org/#urlutils
+ *   https://github.com/angular/angular.js/pull/2902
+ *   http://james.padolsey.com/javascript/parsing-urls-with-the-dom/
+ *
+ * @function
+ * @param {string} url The URL to be parsed.
+ * @description Normalizes and parses a URL.
+ * @returns {object} Returns the normalized URL as a dictionary.
+ *
+ *   | member name   | Description    |
+ *   |---------------|----------------|
+ *   | href          | A normalized version of the provided URL if it was not an absolute URL |
+ *   | protocol      | The protocol including the trailing colon                              |
+ *   | host          | The host and port (if the port is non-default) of the normalizedUrl    |
+ *   | search        | The search params, minus the question mark                             |
+ *   | hash          | The hash string, minus the hash symbol
+ *   | hostname      | The hostname
+ *   | port          | The port, without ":"
+ *   | pathname      | The pathname, beginning with "/"
+ *
+ */
+function urlResolve(url) {
+  var href = url;
+  if (msie) {
+    // Normalize before parse.  Refer Implementation Notes on why this is
+    // done in two steps on IE.
+    urlParsingNode.setAttribute("href", href);
+    href = urlParsingNode.href;
+  }
 
-      if (!parse) {
-        return urlParsingNode.href;
-      }
-      // urlParsingNode provides the UrlUtils interface - http://url.spec.whatwg.org/#urlutils
-      return {
-        href: urlParsingNode.href,
-        protocol: urlParsingNode.protocol,
-        host: urlParsingNode.host
-        // Currently unused and hence commented out.
-        // hostname: urlParsingNode.hostname,
-        // port: urlParsingNode.port,
-        // pathname: urlParsingNode.pathname,
-        // hash: urlParsingNode.hash,
-        // search: urlParsingNode.search
-      };
-    }
+  urlParsingNode.setAttribute('href', href);
 
-    return {
-      resolve: resolve,
-      /**
-       * Parse a request URL and determine whether this is a same-origin request as the application document.
-       *
-       * @param {string|object} requestUrl The url of the request as a string that will be resolved
-       * or a parsed URL object.
-       * @returns {boolean} Whether the request is for the same origin as the application document.
-       */
-      isSameOrigin: function isSameOrigin(requestUrl) {
-        var parsed = (typeof requestUrl === 'string') ? resolve(requestUrl, true) : requestUrl;
-        return (parsed.protocol === originUrl.protocol &&
-                parsed.host === originUrl.host);
-      }
-    };
-  }];
+  // $$urlParsingNode provides the UrlUtils interface - http://url.spec.whatwg.org/#urlutils
+  return {
+    href: urlParsingNode.href,
+    protocol: urlParsingNode.protocol ? urlParsingNode.protocol.replace(/:$/, '') : '',
+    host: urlParsingNode.host,
+    search: urlParsingNode.search ? urlParsingNode.search.replace(/^\?/, '') : '',
+    hash: urlParsingNode.hash ? urlParsingNode.hash.replace(/^#/, '') : '',
+    hostname: urlParsingNode.hostname,
+    port: urlParsingNode.port,
+    pathname: urlParsingNode.pathname && urlParsingNode.pathname.charAt(0) === '/' ? urlParsingNode.pathname : '/' + urlParsingNode.pathname
+  };
+}
+
+
+/**
+ * Parse a request URL and determine whether this is a same-origin request as the application document.
+ *
+ * @param {string|object} requestUrl The url of the request as a string that will be resolved
+ * or a parsed URL object.
+ * @returns {boolean} Whether the request is for the same origin as the application document.
+ */
+function urlIsSameOrigin(requestUrl) {
+  var parsed = (isString(requestUrl)) ? urlResolve(requestUrl) : requestUrl;
+  return (parsed.protocol === originUrl.protocol &&
+          parsed.host === originUrl.host);
 }
 
 /**
