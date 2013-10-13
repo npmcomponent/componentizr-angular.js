@@ -1,5 +1,5 @@
 /**
- * @license AngularJS v1.2.0-9e3627e
+ * @license AngularJS v1.2.0-cf93774
  * (c) 2010-2012 Google, Inc. http://angularjs.org
  * License: MIT
  */
@@ -794,15 +794,15 @@ angular.module('ngAnimate', ['ng'])
         function onAnimationProgress(event) {
           event.stopPropagation();
           var ev = event.originalEvent || event;
+          var timeStamp = ev.$manualTimeStamp || ev.timeStamp || Date.now();
           /* $manualTimeStamp is a mocked timeStamp value which is set
            * within browserTrigger(). This is only here so that tests can
-           * mock animations properly. Real events fallback to event.timeStamp.
-           * We're checking to see if the timestamp surpasses the expected delay,
-           * but we're using elapsedTime instead of the timestamp on the 2nd
+           * mock animations properly. Real events fallback to event.timeStamp,
+           * or, if they don't, then a timeStamp is automatically created for them.
+           * We're checking to see if the timeStamp surpasses the expected delay,
+           * but we're using elapsedTime instead of the timeStamp on the 2nd
            * pre-condition since animations sometimes close off early */
-          if((ev.$manualTimeStamp || ev.timeStamp) - startTime >= maxDelayTime &&
-              ev.elapsedTime >= maxDuration) {
-
+          if(Math.max(timeStamp - startTime, 0) >= maxDelayTime && ev.elapsedTime >= maxDuration) {
             done();
           }
         }
