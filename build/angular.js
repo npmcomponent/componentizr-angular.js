@@ -1,5 +1,5 @@
 /**
- * @license AngularJS v1.2.0-6558496
+ * @license AngularJS v1.2.0-84ce809
  * (c) 2010-2012 Google, Inc. http://angularjs.org
  * License: MIT
  */
@@ -1601,7 +1601,7 @@ function setupModuleLoader(window) {
  * - `codeName` – `{string}` – Code name of the release, such as "jiggling-armfat".
  */
 var version = {
-  full: '1.2.0-6558496',    // all of these placeholder strings will be replaced by grunt's
+  full: '1.2.0-84ce809',    // all of these placeholder strings will be replaced by grunt's
   major: 1,    // package task
   minor: 2,
   dot: 0,
@@ -16845,6 +16845,7 @@ forEach(
  *
  * @element ANY
  * @scope
+ * @priority 600
  * @param {expression} ngIf If the {@link guide/expression expression} is falsy then
  *     the element is removed from the DOM tree. If it is truthy a copy of the compiled
  *     eleent is added to the DOM tree.
@@ -16944,6 +16945,7 @@ var ngIfDirective = ['$animate', function($animate) {
  * The enter and leave animation occur concurrently.
  *
  * @scope
+ * @priority 400
  *
  * @param {string} ngInclude|src angular expression evaluating to URL. If the source is a string constant,
  *                 make sure you wrap it in quotes, e.g. `src="'myPartialTemplate.html'"`.
@@ -18225,6 +18227,7 @@ var ngStyleDirective = ngDirective(function(scope, element, attr) {
  * </ANY>
  *
  * @scope
+ * @priority 800
  * @param {*} ngSwitch|on expression to match against <tt>ng-switch-when</tt>.
  * @paramDescription
  * On child elements add:
