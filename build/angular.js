@@ -1,5 +1,5 @@
 /**
- * @license AngularJS v1.2.0-84ce809
+ * @license AngularJS v1.2.0-662af8e
  * (c) 2010-2012 Google, Inc. http://angularjs.org
  * License: MIT
  */
@@ -1601,11 +1601,11 @@ function setupModuleLoader(window) {
  * - `codeName` – `{string}` – Code name of the release, such as "jiggling-armfat".
  */
 var version = {
-  full: '1.2.0-84ce809',    // all of these placeholder strings will be replaced by grunt's
+  full: '1.2.0-662af8e',    // all of these placeholder strings will be replaced by grunt's
   major: 1,    // package task
   minor: 2,
   dot: 0,
-  codeName: 'ferocious-twitch'
+  codeName: ''
 };
 
 
@@ -9060,6 +9060,7 @@ Parser.prototype = {
       }
       var fnPtr = fn(scope, locals, context) || noop;
 
+      ensureSafeObject(context, parser.text);
       ensureSafeObject(fnPtr, parser.text);
 
       // IE stupidity! (IE doesn't have apply for some native functions)
