@@ -1,5 +1,5 @@
 /**
- * @license AngularJS v1.2.0-662af8e
+ * @license AngularJS v1.2.0-0ec782f
  * (c) 2010-2012 Google, Inc. http://angularjs.org
  * License: MIT
  */
@@ -1601,7 +1601,7 @@ function setupModuleLoader(window) {
  * - `codeName` – `{string}` – Code name of the release, such as "jiggling-armfat".
  */
 var version = {
-  full: '1.2.0-662af8e',    // all of these placeholder strings will be replaced by grunt's
+  full: '1.2.0-0ec782f',    // all of these placeholder strings will be replaced by grunt's
   major: 1,    // package task
   minor: 2,
   dot: 0,
@@ -10071,10 +10071,14 @@ function qFactory(nextTick, exceptionHandler) {
  * @methodOf ng.$rootScopeProvider
  * @description
  *
- * Sets the number of digest iterations the scope should attempt to execute before giving up and
- * assuming that the model is unstable.
+ * Sets the number of `$digest` iterations the scope should attempt to execute before giving up and assuming that the model is unstable.
  *
  * The current default is 10 iterations.
+ *
+ * In complex applications it's possible that the dependencies between `$watch`s will result in several digest iterations.
+ * However if an application needs more than the default 10 digest iterations for its model to stabilize then you should investigate what is causing the model to continuously change during the digest.
+ *
+ * Increasing the TTL could have performance implications, so you should not change it without proper justification.
  *
  * @param {number} limit The number of digest iterations.
  */
