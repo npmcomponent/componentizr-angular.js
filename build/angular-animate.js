@@ -1,5 +1,5 @@
 /**
- * @license AngularJS v1.2.0-0ec782f
+ * @license AngularJS v1.2.0-ba8fd4d
  * (c) 2010-2012 Google, Inc. http://angularjs.org
  * License: MIT
  */
@@ -27,13 +27,13 @@
  *
  * | Directive                                                 | Supported Animations                               |
  * |---------------------------------------------------------- |----------------------------------------------------|
- * | {@link ng.directive:ngRepeat#animations ngRepeat}         | enter, leave and move                              |
- * | {@link ngRoute.directive:ngView#animations ngView}        | enter and leave                                    |
- * | {@link ng.directive:ngInclude#animations ngInclude}       | enter and leave                                    |
- * | {@link ng.directive:ngSwitch#animations ngSwitch}         | enter and leave                                    |
- * | {@link ng.directive:ngIf#animations ngIf}                 | enter and leave                                    |
- * | {@link ng.directive:ngClass#animations ngClass}           | add and remove                                     |
- * | {@link ng.directive:ngShow#animations ngShow & ngHide}    | add and remove (the ng-hide class value)           |
+ * | {@link ng.directive:ngRepeat#usage_animations ngRepeat}         | enter, leave and move                              |
+ * | {@link ngRoute.directive:ngView#usage_animations ngView}        | enter and leave                                    |
+ * | {@link ng.directive:ngInclude#usage_animations ngInclude}       | enter and leave                                    |
+ * | {@link ng.directive:ngSwitch#usage_animations ngSwitch}         | enter and leave                                    |
+ * | {@link ng.directive:ngIf#usage_animations ngIf}                 | enter and leave                                    |
+ * | {@link ng.directive:ngClass#usage_animations ngClass}           | add and remove                                     |
+ * | {@link ng.directive:ngShow#usage_animations ngShow & ngHide}    | add and remove (the ng-hide class value)           |
  *
  * You can find out more information about animations upon visiting each directive page.
  *
@@ -211,7 +211,7 @@ angular.module('ngAnimate', ['ng'])
     var rootAnimateState = {running:true};
     $provide.decorator('$animate', ['$delegate', '$injector', '$sniffer', '$rootElement', '$timeout', '$rootScope',
                             function($delegate,   $injector,   $sniffer,   $rootElement,   $timeout,   $rootScope) {
-        
+
       $rootElement.data(NG_ANIMATE_STATE, rootAnimateState);
 
       function lookup(name) {
@@ -664,7 +664,7 @@ angular.module('ngAnimate', ['ng'])
           animationReflowQueue = [];
           animationTimer = null;
           lookupCache = {};
-        }, 10, false); 
+        }, 10, false);
       }
 
       function getElementAnimationDetails(element, cacheKey, onlyCheckTransition) {
