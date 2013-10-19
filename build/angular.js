@@ -1,5 +1,5 @@
 /**
- * @license AngularJS v1.2.0-ba8fd4d
+ * @license AngularJS v1.2.0-0cd4a75
  * (c) 2010-2012 Google, Inc. http://angularjs.org
  * License: MIT
  */
@@ -839,6 +839,13 @@ function equals(o1, o2) {
 }
 
 
+function csp() {
+  return (document.securityPolicy && document.securityPolicy.isActive) ||
+      (document.querySelector &&
+      !!(document.querySelector('[ng-csp]') || document.querySelector('[data-ng-csp]')));
+}
+
+
 function concat(array1, array2, index) {
   return array1.concat(slice.call(array2, index));
 }
@@ -1601,7 +1608,7 @@ function setupModuleLoader(window) {
  * - `codeName` – `{string}` – Code name of the release, such as "jiggling-armfat".
  */
 var version = {
-  full: '1.2.0-ba8fd4d',    // all of these placeholder strings will be replaced by grunt's
+  full: '1.2.0-0cd4a75',    // all of these placeholder strings will be replaced by grunt's
   major: 1,    // package task
   minor: 2,
   dot: 0,
@@ -1631,12 +1638,13 @@ function publishExternalAPI(angular){
     'isNumber': isNumber,
     'isElement': isElement,
     'isArray': isArray,
-    '$$minErr': minErr,
     'version': version,
     'isDate': isDate,
     'lowercase': lowercase,
     'uppercase': uppercase,
-    'callbacks': {counter: 0}
+    'callbacks': {counter: 0},
+    '$$minErr': minErr,
+    '$$csp': csp
   });
 
   angularModule = setupModuleLoader(window);
@@ -1664,7 +1672,6 @@ function publishExternalAPI(angular){
             ngClass: ngClassDirective,
             ngClassEven: ngClassEvenDirective,
             ngClassOdd: ngClassOddDirective,
-            ngCsp: ngCspDirective,
             ngCloak: ngCloakDirective,
             ngController: ngControllerDirective,
             ngForm: ngFormDirective,
@@ -12154,7 +12161,7 @@ function $SnifferProvider() {
 
         return eventSupport[event];
       },
-      csp: document.securityPolicy ? document.securityPolicy.isActive : false,
+      csp: csp(),
       vendorPrefix: vendorPrefix,
       transitions : transitions,
       animations : animations
@@ -16434,25 +16441,26 @@ var ngControllerDirective = [function() {
 /**
  * @ngdoc directive
  * @name ng.directive:ngCsp
- * @priority 1000
  *
  * @element html
  * @description
  * Enables [CSP (Content Security Policy)](https://developer.mozilla.org/en/Security/CSP) support.
- * 
+ *
  * This is necessary when developing things like Google Chrome Extensions.
- * 
+ *
  * CSP forbids apps to use `eval` or `Function(string)` generated functions (among other things).
  * For us to be compatible, we just need to implement the "getterFn" in $parse without violating
  * any of these restrictions.
- * 
+ *
  * AngularJS uses `Function(string)` generated functions as a speed optimization. Applying the `ngCsp`
  * directive will cause Angular to use CSP compatibility mode. When this mode is on AngularJS will
  * evaluate all expressions up to 30% slower than in non-CSP mode, but no security violations will
  * be raised.
- * 
+ *
  * In order to use this feature put the `ngCsp` directive on the root element of the application.
- * 
+ *
+ * *Note: This directive is only available in the ng-csp and data-ng-csp attribute form.*
+ *
  * @example
  * This example shows how to apply the `ngCsp` directive to the `html` tag.
    <pre>
@@ -16464,14 +16472,9 @@ var ngControllerDirective = [function() {
    </pre>
  */
 
-var ngCspDirective = ['$sniffer', function($sniffer) {
-  return {
-    priority: 1000,
-    compile: function() {
-      $sniffer.csp = true;
-    }
-  };
-}];
+// ngCsp is not implemented as a proper directive any more, because we need it be processed while we bootstrap
+// the system (before $parse is instantiated), for this reason we just have a csp() fn that looks for ng-csp attribute
+// anywhere in the current doc
 
 /**
  * @ngdoc directive
@@ -19144,7 +19147,7 @@ var styleDirective = valueFn({
   });
 
 })(window, document);
-angular.element(document).find('head').prepend('<style type="text/css">@charset "UTF-8";[ng\\:cloak],[ng-cloak],[data-ng-cloak],[x-ng-cloak],.ng-cloak,.x-ng-cloak,.ng-hide{display:none !important;}ng\\:form{display:block;}</style>');
+!angular.$$csp() && angular.element(document).find('head').prepend('<style type="text/css">@charset "UTF-8";[ng\\:cloak],[ng-cloak],[data-ng-cloak],[x-ng-cloak],.ng-cloak,.x-ng-cloak,.ng-hide{display:none !important;}ng\\:form{display:block;}</style>');
 
 /**
  * Expose `angular`
