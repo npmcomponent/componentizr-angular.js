@@ -5,16 +5,7 @@
   "keywords": [],
   "dependencies": {},
   "scripts": [
-    "build/angular.js",
     "build/angular-animate.js",
-    "build/angular-cookies.js",
-    "build/angular-loader.js",
-    "build/angular-mocks.js",
-    "build/angular-resource.js",
-    "build/angular-route.js",
-    "build/angular-sanitize.js",
-    "build/angular-scenario.js",
-    "build/angular-touch.js",
     "index.js"
   ],
   "styles": []
