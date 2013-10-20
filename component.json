@@ -5,7 +5,7 @@
   "keywords": [],
   "dependencies": {},
   "scripts": [
-    "build/angular-animate.js",
+    "build/angular.js",
     "index.js"
   ],
   "styles": []
