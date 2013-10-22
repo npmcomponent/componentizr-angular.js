@@ -1,5 +1,5 @@
 /**
- * @license AngularJS v1.2.0-464eda7
+ * @license AngularJS v1.2.0-8fae70c
  * (c) 2010-2012 Google, Inc. http://angularjs.org
  * License: MIT
  */
@@ -80,7 +80,8 @@ angular.module('ngCookies', ['ng']).
 
 
       /**
-       * Pushes all the cookies from the service to the browser and verifies if all cookies were stored.
+       * Pushes all the cookies from the service to the browser and verifies if all cookies were
+       * stored.
        */
       function push() {
         var name,
