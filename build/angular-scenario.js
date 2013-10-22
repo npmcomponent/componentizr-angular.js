@@ -9790,7 +9790,7 @@ if ( typeof module === "object" && module && typeof module.exports === "object" 
 })( window );
 
 /**
- * @license AngularJS v1.2.0-fd36a3f
+ * @license AngularJS v1.2.0-3dba088
  * (c) 2010-2012 Google, Inc. http://angularjs.org
  * License: MIT
  */
@@ -11400,7 +11400,7 @@ function setupModuleLoader(window) {
  * - `codeName` – `{string}` – Code name of the release, such as "jiggling-armfat".
  */
 var version = {
-  full: '1.2.0-fd36a3f',    // all of these placeholder strings will be replaced by grunt's
+  full: '1.2.0-3dba088',    // all of these placeholder strings will be replaced by grunt's
   major: 1,    // package task
   minor: 2,
   dot: 0,
@@ -26251,7 +26251,7 @@ var ngControllerDirective = [function() {
  *
  * In order to use this feature put the `ngCsp` directive on the root element of the application.
  *
- * *Note: This directive is only available in the ng-csp and data-ng-csp attribute form.*
+ * *Note: This directive is only available in the `ng-csp` and `data-ng-csp` attribute form.*
  *
  * @example
  * This example shows how to apply the `ngCsp` directive to the `html` tag.
