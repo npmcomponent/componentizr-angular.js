@@ -1,5 +1,5 @@
 /**
- * @license AngularJS v1.2.0-e23e490
+ * @license AngularJS v1.2.0-63a73ba
  * (c) 2010-2012 Google, Inc. http://angularjs.org
  * License: MIT
  */
@@ -17,6 +17,8 @@ var $sanitizeMinErr = angular.$$minErr('$sanitize');
  * The `ngSanitize` module provides functionality to sanitize HTML.
  *
  * {@installModule sanitize}
+ *
+ * <div doc-module-components="ngSanitize"></div>
  *
  * See {@link ngSanitize.$sanitize `$sanitize`} for usage.
  */

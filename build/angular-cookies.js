@@ -1,5 +1,5 @@
 /**
- * @license AngularJS v1.2.0-e23e490
+ * @license AngularJS v1.2.0-63a73ba
  * (c) 2010-2012 Google, Inc. http://angularjs.org
  * License: MIT
  */
@@ -12,10 +12,11 @@
  *
  * # ngCookies
  *
- * Provides the {@link ngCookies.$cookies `$cookies`} and
- * {@link ngCookies.$cookieStore `$cookieStore`} services.
+ * The `ngCookies` module provides a convenient wrapper for reading and writing browser cookies. 
  *
  * {@installModule cookies}
+ *
+ * <div doc-module-components="ngCookies"></div>
  *
  * See {@link ngCookies.$cookies `$cookies`} and
  * {@link ngCookies.$cookieStore `$cookieStore`} for usage.

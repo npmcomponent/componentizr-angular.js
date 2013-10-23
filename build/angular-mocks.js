@@ -1,7 +1,7 @@
 'use strict';
 
 /**
- * @license AngularJS v1.2.0-e23e490
+ * @license AngularJS v1.2.0-63a73ba
  * (c) 2010-2012 Google, Inc. http://angularjs.org
  * License: MIT
  *
@@ -1708,8 +1708,16 @@ angular.mock.$RootElementProvider = function() {
  * @name ngMock
  * @description
  *
- * The `ngMock` is an angular module which is used with `ng` module and adds unit-test configuration
- * as well as useful mocks to the {@link AUTO.$injector $injector}.
+ * # ngMock
+ *
+ * The `ngMock` module providers support to inject and mock Angular services into unit tests.
+ * In addition, ngMock also extends various core ng services such that they can be
+ * inspected and controlled in a synchronous manner within test code.
+ *
+ * {@installModule mocks}
+ *
+ * <div doc-module-components="ngMock"></div>
+ *
  */
 angular.module('ngMock', ['ng']).provider({
   $browser: angular.mock.$BrowserProvider,
