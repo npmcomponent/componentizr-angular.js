@@ -1,5 +1,5 @@
 /**
- * @license AngularJS v1.2.0-c837e26
+ * @license AngularJS v1.2.0-3a2d2fb
  * (c) 2010-2012 Google, Inc. http://angularjs.org
  * License: MIT
  */
@@ -1780,7 +1780,7 @@ function setupModuleLoader(window) {
  * - `codeName` – `{string}` – Code name of the release, such as "jiggling-armfat".
  */
 var version = {
-  full: '1.2.0-c837e26',    // all of these placeholder strings will be replaced by grunt's
+  full: '1.2.0-3a2d2fb',    // all of these placeholder strings will be replaced by grunt's
   major: 1,    // package task
   minor: "NG_VERSION_MINOR",
   dot: 0,
@@ -15546,8 +15546,8 @@ function numberInputType(scope, element, attr, ctrl, $sniffer, $browser) {
   });
 
   if (attr.min) {
-    var min = parseFloat(attr.min);
     var minValidator = function(value) {
+      var min = parseFloat(attr.min);
       if (!ctrl.$isEmpty(value) && value < min) {
         ctrl.$setValidity('min', false);
         return undefined;
@@ -15562,8 +15562,8 @@ function numberInputType(scope, element, attr, ctrl, $sniffer, $browser) {
   }
 
   if (attr.max) {
-    var max = parseFloat(attr.max);
     var maxValidator = function(value) {
+      var max = parseFloat(attr.max);
       if (!ctrl.$isEmpty(value) && value > max) {
         ctrl.$setValidity('max', false);
         return undefined;
