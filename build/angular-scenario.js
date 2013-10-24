@@ -9790,7 +9790,7 @@ if ( typeof module === "object" && module && typeof module.exports === "object" 
 })( window );
 
 /**
- * @license AngularJS v1.2.0-d6852b3
+ * @license AngularJS v1.2.0-1a39d34
  * (c) 2010-2012 Google, Inc. http://angularjs.org
  * License: MIT
  */
@@ -11572,7 +11572,7 @@ function setupModuleLoader(window) {
  * - `codeName` – `{string}` – Code name of the release, such as "jiggling-armfat".
  */
 var version = {
-  full: '1.2.0-d6852b3',    // all of these placeholder strings will be replaced by grunt's
+  full: '1.2.0-1a39d34',    // all of these placeholder strings will be replaced by grunt's
   major: 1,    // package task
   minor: "NG_VERSION_MINOR",
   dot: 0,
@@ -25735,14 +25735,14 @@ var VALID_CLASS = 'ng-valid',
  * Note that if you have a directive with an isolated scope, you cannot require `ngModel`
  * since the model value will be looked up on the isolated scope rather than the outer scope.
  * When the directive updates the model value, calling `ngModel.$setViewValue()` the property
- * on the outer scope will not be updated.
+ * on the outer scope will not be updated. However you can get around this by using $parent.
  *
- * Here is an example of this situation.  You'll notice that even though both 'input' and 'div'
- * seem to be attached to the same model, they are not kept in synch.
+ * Here is an example of this situation.  You'll notice that the first div is not updating the input. 
+ * However the second div can update the input properly.
  *
  * <example module="badIsolatedDirective">
     <file name="script.js">
-		angular.module('badIsolatedDirective', []).directive('bad', function() {
+		angular.module('badIsolatedDirective', []).directive('isolate', function() {
       return {
         require: 'ngModel',
         scope: { },
@@ -25757,8 +25757,9 @@ var VALID_CLASS = 'ng-valid',
 		});
     </file>
     <file name="index.html">
-      <input ng-model="someModel">
-      <div bad ng-model="someModel"></div>
+        <input ng-model="someModel"/>
+        <div isolate ng-model="someModel"></div>
+        <div isolate ng-model="$parent.someModel"></div>
     </file>
  * </example>
  *
@@ -26406,6 +26407,29 @@ var ngBindTemplateDirective = ['$interpolate', function($interpolate) {
  *
  * @element ANY
  * @param {expression} ngBindHtml {@link guide/expression Expression} to evaluate.
+ *
+ * @example
+ * Try it here: enter text in text box and watch the greeting change.
+   <doc:example module="ngBindHtmlExample" deps="angular-sanitize.js" >
+     <doc:source>
+       <script>
+         angular.module('ngBindHtmlExample', ['ngSanitize'])
+
+         .controller('ngBindHtmlCtrl', ['$scope', function ngBindHtmlCtrl($scope) {
+           $scope.myHTML = 'I am an <code>HTML</code>string with <a href="#">links!</a> and other <em>stuff</em>';
+         }]);
+       </script>
+       <div ng-controller="ngBindHtmlCtrl">
+        <p ng-bind-html="myHTML"></p>
+       </div>
+     </doc:source>
+     <doc:scenario>
+       it('should check ng-bind-html', function() {
+         expect(using('.doc-example-live').binding('myHTML')).
+           toBe('I am an <code>HTML</code>string with <a href="#">links!</a> and other <em>stuff</em>');
+       });
+     </doc:scenario>
+   </doc:example>
  */
 var ngBindHtmlDirective = ['$sce', '$parse', function($sce, $parse) {
   return function(scope, element, attr) {
@@ -29136,7 +29160,7 @@ var ngOptionsMinErr = minErr('ngOptions');
           Color (null allowed):
           <span  class="nullable">
             <select ng-model="color" ng-options="c.name for c in colors">
-              <option value="">-- chose color --</option>
+              <option value="">-- choose color --</option>
             </select>
           </span><br/>
 
