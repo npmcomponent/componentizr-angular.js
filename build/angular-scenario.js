@@ -9790,7 +9790,7 @@ if ( typeof module === "object" && module && typeof module.exports === "object" 
 })( window );
 
 /**
- * @license AngularJS v1.2.0-60604fe
+ * @license AngularJS v1.2.0-d6852b3
  * (c) 2010-2012 Google, Inc. http://angularjs.org
  * License: MIT
  */
@@ -11572,7 +11572,7 @@ function setupModuleLoader(window) {
  * - `codeName` – `{string}` – Code name of the release, such as "jiggling-armfat".
  */
 var version = {
-  full: '1.2.0-60604fe',    // all of these placeholder strings will be replaced by grunt's
+  full: '1.2.0-d6852b3',    // all of these placeholder strings will be replaced by grunt's
   major: 1,    // package task
   minor: "NG_VERSION_MINOR",
   dot: 0,
@@ -13023,7 +13023,7 @@ function annotate(fn) {
  * Register a **service factory**, which will be called to return the service instance.
  * This is short for registering a service where its provider consists of only a `$get` property,
  * which is the given service factory function.
- * You should use {@link AUTO.$provide#factory $provide.factor(getFn)} if you do not need to
+ * You should use {@link AUTO.$provide#factory $provide.factory(getFn)} if you do not need to
  * configure your service in a provider.
  *
  * @param {string} name The name of the instance.
@@ -15456,16 +15456,16 @@ function $CompileProvider($provide) {
 
       var terminalPriority = -Number.MAX_VALUE,
           newScopeDirective,
+          controllerDirectives = previousCompileContext.controllerDirectives,
           newIsolateScopeDirective = previousCompileContext.newIsolateScopeDirective,
           templateDirective = previousCompileContext.templateDirective,
+          transcludeDirective = previousCompileContext.transcludeDirective,
           $compileNode = templateAttrs.$$element = jqLite(compileNode),
           directive,
           directiveName,
           $template,
-          transcludeDirective = previousCompileContext.transcludeDirective,
           replaceDirective = originalReplaceDirective,
           childTranscludeFn = transcludeFn,
-          controllerDirectives,
           linkFn,
           directiveValue;
 
@@ -15530,9 +15530,10 @@ function $CompileProvider($provide) {
 
             childTranscludeFn = compile($template, transcludeFn, terminalPriority,
                                         replaceDirective && replaceDirective.name, {
+                                          controllerDirectives: controllerDirectives,
                                           newIsolateScopeDirective: newIsolateScopeDirective,
-                                          transcludeDirective: transcludeDirective,
-                                          templateDirective: templateDirective
+                                          templateDirective: templateDirective,
+                                          transcludeDirective: transcludeDirective
                                         });
           } else {
             $template = jqLite(jqLiteClone(compileNode)).contents();
@@ -15598,9 +15599,10 @@ function $CompileProvider($provide) {
 
           nodeLinkFn = compileTemplateUrl(directives.splice(i, directives.length - i), $compileNode,
               templateAttrs, jqCollection, childTranscludeFn, preLinkFns, postLinkFns, {
+                controllerDirectives: controllerDirectives,
                 newIsolateScopeDirective: newIsolateScopeDirective,
-                transcludeDirective: transcludeDirective,
-                templateDirective: templateDirective
+                templateDirective: templateDirective,
+                transcludeDirective: transcludeDirective
               });
           ii = directives.length;
         } else if (directive.compile) {
@@ -15754,7 +15756,7 @@ function $CompileProvider($provide) {
                   return parentGet(parentScope, locals);
                 };
                 break;
-              
+
               default:
                 throw $compileMinErr('iscp',
                     "Invalid isolate scope definition for directive '{0}'." +
@@ -16158,7 +16160,7 @@ function directiveNormalize(name) {
 /**
  * @ngdoc object
  * @name ng.$compile.directive.Attributes
- * 
+ *
  * @description
  * A shared object between directive compile / linking functions which contains normalized DOM
  * element attributes. The the values reflect current binding state `{{ }}`. The normalization is
@@ -26802,7 +26804,10 @@ var ngCloakDirective = ngDirective({
  * * Controller — The `ngController` directive specifies a Controller class; the class contains business
  *   logic behind the application to decorate the scope with functions and values
  *
- * Note that an alternative way to define controllers is via the {@link ngRoute.$route $route} service.
+ * Note that you can also attach controllers to the DOM by declaring it in a route definition
+ * via the {@link ngRoute.$route $route} service. A common mistake is to declare the controller
+ * again using `ng-controller` in the template itself.  This will cause the controller to be attached
+ * and executed twice.
  *
  * @element ANY
  * @scope
@@ -27726,7 +27731,7 @@ var ngInitDirective = ngDirective({
  * The `ngNonBindable` directive tells Angular not to compile or bind the contents of the current
  * DOM element. This is useful if the element contains what appears to be Angular directives and
  * bindings but which should be ignored by Angular. This could be the case if you have a site that
- * displays snippets of code. for instance.
+ * displays snippets of code, for instance.
  *
  * @element ANY
  *
