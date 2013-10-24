@@ -1,5 +1,5 @@
 /**
- * @license AngularJS v1.2.0-1a39d34
+ * @license AngularJS v1.2.0-2ac61e5
  * (c) 2010-2012 Google, Inc. http://angularjs.org
  * License: MIT
  */
@@ -1780,7 +1780,7 @@ function setupModuleLoader(window) {
  * - `codeName` – `{string}` – Code name of the release, such as "jiggling-armfat".
  */
 var version = {
-  full: '1.2.0-1a39d34',    // all of these placeholder strings will be replaced by grunt's
+  full: '1.2.0-2ac61e5',    // all of these placeholder strings will be replaced by grunt's
   major: 1,    // package task
   minor: "NG_VERSION_MINOR",
   dot: 0,
@@ -10922,6 +10922,8 @@ function $RootScopeProvider(){
        * can compare the `newVal` and `oldVal`. If these two values are identical (`===`) then the
        * listener was called due to initialization.
        *
+       * The example below contains an illustration of using a function as your $watch listener
+       *
        *
        * # Example
        * <pre>
@@ -10943,6 +10945,36 @@ function $RootScopeProvider(){
            scope.name = 'adam';
            scope.$digest();
            expect(scope.counter).toEqual(1);
+
+
+
+           // Using a listener function 
+           var food;
+           scope.foodCounter = 0;
+           expect(scope.foodCounter).toEqual(0);
+           scope.$watch(
+             // This is the listener function
+             function() { return food; },
+             // This is the change handler
+             function(newValue, oldValue) {
+               if ( newValue !== oldValue ) {
+                 // Only increment the counter if the value changed
+                 scope.foodCounter = scope.foodCounter + 1;
+               }
+             }
+           );
+           // No digest has been run so the counter will be zero
+           expect(scope.foodCounter).toEqual(0);
+
+           // Run the digest but since food has not changed cout will still be zero
+           scope.$digest();
+           expect(scope.foodCounter).toEqual(0);
+
+           // Update food and run digest.  Now the counter will increment
+           food = 'cheeseburger';
+           scope.$digest();
+           expect(scope.foodCounter).toEqual(1);  
+
        * </pre>
        *
        *
@@ -16747,7 +16779,7 @@ function classDirective(name, selector) {
  *   names of the properties whose values are truthy will be added as css classes to the
  *   element.
  *
- * @example Example that demostrates basic bindings via ngClass directive.
+ * @example Example that demonstrates basic bindings via ngClass directive.
    <example>
      <file name="index.html">
        <p ng-class="{strike: strike, bold: bold, red: red}">Map Syntax Example</p>
