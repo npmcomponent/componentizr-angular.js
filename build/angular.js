@@ -19895,3 +19895,8 @@ var styleDirective = valueFn({
  * Expose `angular`
  */
 module.exports = window.angular;
+
+/**
+ * Expose `angular`
+ */
+module.exports = window.angular;
