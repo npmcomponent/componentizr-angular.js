@@ -1,5 +1,5 @@
 /**
- * @license AngularJS v1.2.0-81c11ce
+ * @license AngularJS v1.2.0-0fbbada
  * (c) 2010-2012 Google, Inc. http://angularjs.org
  * License: MIT
  */
@@ -1780,7 +1780,7 @@ function setupModuleLoader(window) {
  * - `codeName` – `{string}` – Code name of the release, such as "jiggling-armfat".
  */
 var version = {
-  full: '1.2.0-81c11ce',    // all of these placeholder strings will be replaced by grunt's
+  full: '1.2.0-0fbbada',    // all of these placeholder strings will be replaced by grunt's
   major: 1,    // package task
   minor: "NG_VERSION_MINOR",
   dot: 0,
@@ -6264,33 +6264,37 @@ function $CompileProvider($provide) {
       }
 
       directives.push({
-        priority: -100,
-        compile: valueFn(function attrInterpolateLinkFn(scope, element, attr) {
-          var $$observers = (attr.$$observers || (attr.$$observers = {}));
+        priority: 100,
+        compile: function() {
+            return {
+              pre: function attrInterpolatePreLinkFn(scope, element, attr) {
+                var $$observers = (attr.$$observers || (attr.$$observers = {}));
 
-          if (EVENT_HANDLER_ATTR_REGEXP.test(name)) {
-            throw $compileMinErr('nodomevents',
-                "Interpolations for HTML DOM event attributes are disallowed.  Please use the " +
-                "ng- versions (such as ng-click instead of onclick) instead.");
+                if (EVENT_HANDLER_ATTR_REGEXP.test(name)) {
+                  throw $compileMinErr('nodomevents',
+                      "Interpolations for HTML DOM event attributes are disallowed.  Please use the " +
+                          "ng- versions (such as ng-click instead of onclick) instead.");
+                }
+
+                // we need to interpolate again, in case the attribute value has been updated
+                // (e.g. by another directive's compile function)
+                interpolateFn = $interpolate(attr[name], true, getTrustedContext(node, name));
+
+                // if attribute was updated so that there is no interpolation going on we don't want to
+                // register any observers
+                if (!interpolateFn) return;
+
+                // TODO(i): this should likely be attr.$set(name, iterpolateFn(scope) so that we reset the
+                // actual attr value
+                attr[name] = interpolateFn(scope);
+                ($$observers[name] || ($$observers[name] = [])).$$inter = true;
+                (attr.$$observers && attr.$$observers[name].$$scope || scope).
+                    $watch(interpolateFn, function interpolateFnWatchAction(value) {
+                      attr.$set(name, value);
+                    });
+              }
+            };
           }
-
-          // we need to interpolate again, in case the attribute value has been updated
-          // (e.g. by another directive's compile function)
-          interpolateFn = $interpolate(attr[name], true, getTrustedContext(node, name));
-
-          // if attribute was updated so that there is no interpolation going on we don't want to
-          // register any observers
-          if (!interpolateFn) return;
-
-          // TODO(i): this should likely be attr.$set(name, iterpolateFn(scope) so that we reset the
-          // actual attr value
-          attr[name] = interpolateFn(scope);
-          ($$observers[name] || ($$observers[name] = [])).$$inter = true;
-          (attr.$$observers && attr.$$observers[name].$$scope || scope).
-            $watch(interpolateFn, function interpolateFnWatchAction(value) {
-              attr.$set(name, value);
-            });
-        })
       });
     }
 
@@ -6371,7 +6375,7 @@ function directiveNormalize(name) {
  *
  * @description
  * A shared object between directive compile / linking functions which contains normalized DOM
- * element attributes. The the values reflect current binding state `{{ }}`. The normalization is
+ * element attributes. The values reflect current binding state `{{ }}`. The normalization is
  * needed since all of these are treated as equivalent in Angular:
  *
  *    <span ng:bind="a" ng-bind="a" data-ng-bind="a" x-ng-bind="a">
@@ -17646,7 +17650,7 @@ forEach(
  * @priority 600
  * @param {expression} ngIf If the {@link guide/expression expression} is falsy then
  *     the element is removed from the DOM tree. If it is truthy a copy of the compiled
- *     eleent is added to the DOM tree.
+ *     element is added to the DOM tree.
  *
  * @example
   <example animations="true">
