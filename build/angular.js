@@ -1,5 +1,5 @@
 /**
- * @license AngularJS v1.2.0-03ceecc
+ * @license AngularJS v1.2.0-865e484
  * (c) 2010-2012 Google, Inc. http://angularjs.org
  * License: MIT
  */
@@ -871,7 +871,8 @@ function shallowCopy(src, dst) {
  * Two objects or values are considered equivalent if at least one of the following is true:
  *
  * * Both objects or values pass `===` comparison.
- * * Both objects or values are of the same type and all of their properties pass `===` comparison.
+ * * Both objects or values are of the same type and all of their properties are equal by
+ *   comparing them with `angular.equals`.
  * * Both values are NaN. (In JavaScript, NaN == NaN => false. But we consider two NaN as equal)
  * * Both values represent the same regular expression (In JavasScript,
  *   /abc/ == /abc/ => false. But we consider two regular expressions as equal when their textual
@@ -1780,7 +1781,7 @@ function setupModuleLoader(window) {
  * - `codeName` – `{string}` – Code name of the release, such as "jiggling-armfat".
  */
 var version = {
-  full: '1.2.0-03ceecc',    // all of these placeholder strings will be replaced by grunt's
+  full: '1.2.0-865e484',    // all of these placeholder strings will be replaced by grunt's
   major: 1,    // package task
   minor: "NG_VERSION_MINOR",
   dot: 0,
@@ -6990,6 +6991,7 @@ function $HttpProvider() {
      *       'response': function(response) {
      *          // same as above
      *       }
+     *     };
      *   });
      * </pre>
      *
@@ -10311,8 +10313,6 @@ function $ParseProvider() {
  * - $q is integrated with the {@link ng.$rootScope.Scope} Scope model observation
  *   mechanism in angular, which means faster propagation of resolution or rejection into your
  *   models and avoiding unnecessary browser repaints, which would result in flickering UI.
- * - $q promises are recognized by the templating engine in angular, which means that in templates
- *   you can treat promises attached to a scope as if they were the resulting values.
  * - Q has many more features than $q, but that comes at a cost of bytes. $q is tiny, but contains
  *   all the important functionality needed for common async tasks.
  *
@@ -14881,7 +14881,7 @@ function FormController(element, attrs) {
  * does not allow nesting of form elements. It is useful to nest forms, for example if the validity of a
  * sub-group of controls needs to be determined.
  *
- * @param {string=} name|ngForm Name of the form. If specified, the form controller will be published into
+ * @param {string=} ngForm|name Name of the form. If specified, the form controller will be published into
  *                       related scope, under this name.
  *
  */
@@ -19956,11 +19956,6 @@ var styleDirective = valueFn({
 })(window, document);
 
 !angular.$$csp() && angular.element(document).find('head').prepend('<style type="text/css">@charset "UTF-8";[ng\\:cloak],[ng-cloak],[data-ng-cloak],[x-ng-cloak],.ng-cloak,.x-ng-cloak,.ng-hide{display:none !important;}ng\\:form{display:block;}</style>');
-
-/**
- * Expose `angular`
- */
-module.exports = window.angular;
 
 /**
  * Expose `angular`
