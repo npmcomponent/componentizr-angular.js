@@ -9790,7 +9790,7 @@ if ( typeof module === "object" && module && typeof module.exports === "object" 
 })( window );
 
 /**
- * @license AngularJS v1.2.0-c4664b3
+ * @license AngularJS v1.2.0-0a589e0
  * (c) 2010-2012 Google, Inc. http://angularjs.org
  * License: MIT
  */
@@ -11573,7 +11573,7 @@ function setupModuleLoader(window) {
  * - `codeName` – `{string}` – Code name of the release, such as "jiggling-armfat".
  */
 var version = {
-  full: '1.2.0-c4664b3',    // all of these placeholder strings will be replaced by grunt's
+  full: '1.2.0-0a589e0',    // all of these placeholder strings will be replaced by grunt's
   major: 1,    // package task
   minor: "NG_VERSION_MINOR",
   dot: 0,
@@ -24761,7 +24761,7 @@ function FormController(element, attrs) {
  *
  * - If a form has only one input field then hitting enter in this field triggers form submit
  * (`ngSubmit`)
- * - if a form has has 2+ input fields and no buttons or input[type=submit] then hitting enter
+ * - if a form has 2+ input fields and no buttons or input[type=submit] then hitting enter
  * doesn't trigger submit
  * - if a form has one or more input fields and one or more buttons or input[type=submit] then
  * hitting enter in any of the input fields will trigger the click handler on the *first* button or
