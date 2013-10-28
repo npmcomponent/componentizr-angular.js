@@ -1,7 +1,7 @@
 'use strict';
 
 /**
- * @license AngularJS v1.2.0-46ba729
+ * @license AngularJS v1.2.0-85d616d
  * (c) 2010-2012 Google, Inc. http://angularjs.org
  * License: MIT
  *
@@ -1726,9 +1726,9 @@ angular.module('ngMock', ['ng']).provider({
   $interval: angular.mock.$IntervalProvider,
   $httpBackend: angular.mock.$HttpBackendProvider,
   $rootElement: angular.mock.$RootElementProvider
-}).config(function($provide) {
+}).config(['$provide', function($provide) {
   $provide.decorator('$timeout', angular.mock.$TimeoutDecorator);
-});
+}]);
 
 /**
  * @ngdoc overview
@@ -1739,9 +1739,9 @@ angular.module('ngMock', ['ng']).provider({
  * Currently there is only one mock present in this module -
  * the {@link ngMockE2E.$httpBackend e2e $httpBackend} mock.
  */
-angular.module('ngMockE2E', ['ng']).config(function($provide) {
+angular.module('ngMockE2E', ['ng']).config(['$provide', function($provide) {
   $provide.decorator('$httpBackend', angular.mock.e2e.$httpBackendDecorator);
-});
+}]);
 
 /**
  * @ngdoc object
