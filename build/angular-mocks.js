@@ -1,7 +1,7 @@
 'use strict';
 
 /**
- * @license AngularJS v1.2.0-92089a8
+ * @license AngularJS v1.2.0-d698db1
  * (c) 2010-2012 Google, Inc. http://angularjs.org
  * License: MIT
  *
