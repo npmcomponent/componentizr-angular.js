@@ -1,5 +1,5 @@
 /**
- * @license AngularJS v1.2.0-04543a1
+ * @license AngularJS v1.2.0-497891e
  * (c) 2010-2012 Google, Inc. http://angularjs.org
  * License: MIT
  */
@@ -703,7 +703,7 @@ angular.module('ngAnimate', ['ng'])
       }
 
       function animationsDisabled(element, parent) {
-        if(element == $rootElement) {
+        if(element[0] == $rootElement[0]) {
           return rootAnimateState.disabled || rootAnimateState.running;
         }
 
