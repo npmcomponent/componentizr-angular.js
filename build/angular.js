@@ -1,5 +1,5 @@
 /**
- * @license AngularJS v1.2.0-632a844
+ * @license AngularJS v1.2.0-fe0b509
  * (c) 2010-2012 Google, Inc. http://angularjs.org
  * License: MIT
  */
@@ -158,7 +158,8 @@ function minErr(module) {
     -assertArg,
     -assertArgFn,
     -assertNotHasOwnProperty,
-    -getter
+    -getter,
+    -getBlockElements
 
 */
 
@@ -1399,6 +1400,28 @@ function getter(obj, path, bindFnToScope) {
 }
 
 /**
+ * Return the siblings between `startNode` and `endNode`, inclusive
+ * @param {Object} object with `startNode` and `endNode` properties
+ * @returns jQlite object containing the elements
+ */
+function getBlockElements(block) {
+  if (block.startNode === block.endNode) {
+    return jqLite(block.startNode);
+  }
+
+  var element = block.startNode;
+  var elements = [element];
+
+  do {
+    element = element.nextSibling;
+    if (!element) break;
+    elements.push(element);
+  } while (element !== block.endNode);
+
+  return jqLite(elements);
+}
+
+/**
  * @ngdoc interface
  * @name angular.Module
  * @description
@@ -1781,7 +1804,7 @@ function setupModuleLoader(window) {
  * - `codeName` – `{string}` – Code name of the release, such as "jiggling-armfat".
  */
 var version = {
-  full: '1.2.0-632a844',    // all of these placeholder strings will be replaced by grunt's
+  full: '1.2.0-fe0b509',    // all of these placeholder strings will be replaced by grunt's
   major: 1,    // package task
   minor: "NG_VERSION_MINOR",
   dot: 0,
@@ -5721,9 +5744,10 @@ function $CompileProvider($provide) {
         }
 
         if (directiveValue = directive.transclude) {
-          // Special case ngRepeat so that we don't complain about duplicate transclusion, ngRepeat
-          // knows how to handle this on its own.
-          if (directiveName !== 'ngRepeat') {
+          // Special case ngIf and ngRepeat so that we don't complain about duplicate transclusion.
+          // This option should only be used by directives that know how to how to safely handle element transclusion,
+          // where the transcluded nodes are added or replaced after linking.
+          if (!directive.$$tlb) {
             assertNoDuplicate('transclusion', transcludeDirective, directive, $compileNode);
             transcludeDirective = directive;
           }
@@ -17727,22 +17751,24 @@ var ngIfDirective = ['$animate', function($animate) {
     priority: 600,
     terminal: true,
     restrict: 'A',
+    $$tlb: true,
     compile: function (element, attr, transclude) {
       return function ($scope, $element, $attr) {
-        var childElement, childScope;
+        var block = {}, childScope;
         $scope.$watch($attr.ngIf, function ngIfWatchAction(value) {
-          if (childElement) {
-            $animate.leave(childElement);
-            childElement = undefined;
+          if (block.startNode) {
+            $animate.leave(getBlockElements(block));
+            block = {};
           }
-          if (childScope) {
-            childScope.$destroy();
-            childScope = undefined;
+          if (block.startNode) {
+            getBlockElements(block).$destroy();
+            block = {};
           }
           if (toBoolean(value)) {
             childScope = $scope.$new();
             transclude(childScope, function (clone) {
-              childElement = clone;
+              block.startNode = clone[0];
+              block.endNode = clone[clone.length++] = document.createComment(' end ngIf: ' + $attr.ngIf + ' ');
               $animate.enter(clone, $element.parent(), $element);
             });
           }
@@ -18484,6 +18510,7 @@ var ngRepeatDirective = ['$parse', '$animate', function($parse, $animate) {
     transclude: 'element',
     priority: 1000,
     terminal: true,
+    $$tlb: true,
     compile: function(element, attr, linker) {
       return function($scope, $element, $attr){
         var expression = $attr.ngRepeat;
@@ -18663,23 +18690,6 @@ var ngRepeatDirective = ['$parse', '$animate', function($parse, $animate) {
       };
     }
   };
-
-  function getBlockElements(block) {
-    if (block.startNode === block.endNode) {
-      return jqLite(block.startNode);
-    }
-
-    var element = block.startNode;
-    var elements = [element];
-
-    do {
-      element = element.nextSibling;
-      if (!element) break;
-      elements.push(element);
-    } while (element !== block.endNode);
-
-    return jqLite(elements);
-  }
 }];
 
 /**
