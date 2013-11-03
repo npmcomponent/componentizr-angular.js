@@ -1,5 +1,5 @@
 /**
- * @license AngularJS v1.2.0-68f4c1d
+ * @license AngularJS v1.2.0-f8a1cd3
  * (c) 2010-2012 Google, Inc. http://angularjs.org
  * License: MIT
  */
@@ -1804,7 +1804,7 @@ function setupModuleLoader(window) {
  * - `codeName` – `{string}` – Code name of the release, such as "jiggling-armfat".
  */
 var version = {
-  full: '1.2.0-68f4c1d',    // all of these placeholder strings will be replaced by grunt's
+  full: '1.2.0-f8a1cd3',    // all of these placeholder strings will be replaced by grunt's
   major: 1,    // package task
   minor: "NG_VERSION_MINOR",
   dot: 0,
@@ -8548,9 +8548,10 @@ LocationHashbangInHtml5Url.prototype =
    * @param {string|Object.<string>|Object.<Array.<string>>} search New search params - string or
    * hash object. Hash object may contain an array of values, which will be decoded as duplicates in
    * the url.
-   * 
-   * @param {string=} paramValue If `search` is a string, then `paramValue` will override only a
-   * single search parameter. If the value is `null`, the parameter will be deleted.
+   *
+   * @param {(string|Array<string>)=} paramValue If `search` is a string, then `paramValue` will override only a
+   * single search parameter. If `paramValue` is an array, it will set the parameter as a
+   * comma-separated value. If `paramValue` is `null`, the parameter will be deleted.
    *
    * @return {string} search
    */
@@ -8704,7 +8705,7 @@ function $LocationProvider(){
       return html5Mode;
     }
   };
-    
+
   /**
    * @ngdoc event
    * @name ng.$location#$locationChangeStart
@@ -8720,14 +8721,14 @@ function $LocationProvider(){
    * @param {string} newUrl New URL
    * @param {string=} oldUrl URL that was before it was changed.
    */
-    
+
   /**
    * @ngdoc event
    * @name ng.$location#$locationChangeSuccess
    * @eventOf ng.$location
    * @eventType broadcast on root scope
    * @description
-   * Broadcasted after a URL was changed. 
+   * Broadcasted after a URL was changed.
    *
    * @param {Object} angularEvent Synthetic event object.
    * @param {string} newUrl New URL
