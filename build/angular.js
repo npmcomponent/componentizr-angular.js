@@ -1,5 +1,5 @@
 /**
- * @license AngularJS v1.2.0-6814b50
+ * @license AngularJS v1.2.0-33f592c
  * (c) 2010-2012 Google, Inc. http://angularjs.org
  * License: MIT
  */
@@ -1804,7 +1804,7 @@ function setupModuleLoader(window) {
  * - `codeName` – `{string}` – Code name of the release, such as "jiggling-armfat".
  */
 var version = {
-  full: '1.2.0-6814b50',    // all of these placeholder strings will be replaced by grunt's
+  full: '1.2.0-33f592c',    // all of these placeholder strings will be replaced by grunt's
   major: 1,    // package task
   minor: "NG_VERSION_MINOR",
   dot: 0,
@@ -9005,7 +9005,7 @@ var promiseWarning;
 // ------------------------------
 // Angular expressions are generally considered safe because these expressions only have direct
 // access to $scope and locals. However, one can obtain the ability to execute arbitrary JS code by
-// obtaining a reference to native JS functions such as the Function constructor, thw global Window
+// obtaining a reference to native JS functions such as the Function constructor, the global Window
 // or Document object.  In addition, many powerful functions for use by JavaScript code are
 // published on scope that shouldn't be available from within an Angular expression.
 //
