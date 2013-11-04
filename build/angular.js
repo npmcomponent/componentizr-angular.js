@@ -1,5 +1,5 @@
 /**
- * @license AngularJS v1.2.0-33f592c
+ * @license AngularJS v1.2.0-e6e076d
  * (c) 2010-2012 Google, Inc. http://angularjs.org
  * License: MIT
  */
@@ -1804,7 +1804,7 @@ function setupModuleLoader(window) {
  * - `codeName` – `{string}` – Code name of the release, such as "jiggling-armfat".
  */
 var version = {
-  full: '1.2.0-33f592c',    // all of these placeholder strings will be replaced by grunt's
+  full: '1.2.0-e6e076d',    // all of these placeholder strings will be replaced by grunt's
   major: 1,    // package task
   minor: "NG_VERSION_MINOR",
   dot: 0,
@@ -16056,7 +16056,7 @@ var VALID_CLASS = 'ng-valid',
  * When the directive updates the model value, calling `ngModel.$setViewValue()` the property
  * on the outer scope will not be updated. However you can get around this by using $parent.
  *
- * Here is an example of this situation.  You'll notice that the first div is not updating the input. 
+ * Here is an example of this situation.  You'll notice that the first div is not updating the input.
  * However the second div can update the input properly.
  *
  * <example module="badIsolatedDirective">
@@ -16337,7 +16337,7 @@ var ngModelDirective = function() {
 
       formCtrl.$addControl(modelCtrl);
 
-      element.on('$destroy', function() {
+      scope.$on('$destroy', function() {
         formCtrl.$removeControl(modelCtrl);
       });
     }
@@ -17775,23 +17775,31 @@ var ngIfDirective = ['$animate', function($animate) {
     $$tlb: true,
     compile: function (element, attr, transclude) {
       return function ($scope, $element, $attr) {
-        var block = {}, childScope;
+        var block, childScope;
         $scope.$watch($attr.ngIf, function ngIfWatchAction(value) {
-          if (block.startNode) {
-            $animate.leave(getBlockElements(block));
-            block = {};
-          }
-          if (block.startNode) {
-            getBlockElements(block).$destroy();
-            block = {};
-          }
+
           if (toBoolean(value)) {
+
             childScope = $scope.$new();
             transclude(childScope, function (clone) {
-              block.startNode = clone[0];
-              block.endNode = clone[clone.length++] = document.createComment(' end ngIf: ' + $attr.ngIf + ' ');
+              block = {
+                startNode: clone[0],
+                endNode: clone[clone.length++] = document.createComment(' end ngIf: ' + $attr.ngIf + ' ')
+              };
               $animate.enter(clone, $element.parent(), $element);
             });
+
+          } else {
+
+            if (childScope) {
+              childScope.$destroy();
+              childScope = null;
+            }
+
+            if (block) {
+              $animate.leave(getBlockElements(block));
+              block = null;
+            }
           }
         });
       };
