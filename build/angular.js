@@ -1,5 +1,5 @@
 /**
- * @license AngularJS v1.2.0-7f85678
+ * @license AngularJS v1.2.0-8265323
  * (c) 2010-2012 Google, Inc. http://angularjs.org
  * License: MIT
  */
@@ -1804,7 +1804,7 @@ function setupModuleLoader(window) {
  * - `codeName` – `{string}` – Code name of the release, such as "jiggling-armfat".
  */
 var version = {
-  full: '1.2.0-7f85678',    // all of these placeholder strings will be replaced by grunt's
+  full: '1.2.0-8265323',    // all of these placeholder strings will be replaced by grunt's
   major: 1,    // package task
   minor: "NG_VERSION_MINOR",
   dot: 0,
@@ -17976,6 +17976,11 @@ var ngIncludeDirective = ['$http', '$templateCache', '$anchorScroll', '$compile'
         };
 
         scope.$watch($sce.parseAsResourceUrl(srcExp), function ngIncludeWatchAction(src) {
+          var afterAnimation = function() {
+            if (isDefined(autoScrollExp) && (!autoScrollExp || scope.$eval(autoScrollExp))) {
+              $anchorScroll();
+            }
+          };
           var thisChangeId = ++changeCounter;
 
           if (src) {
@@ -17990,13 +17995,8 @@ var ngIncludeDirective = ['$http', '$templateCache', '$anchorScroll', '$compile'
                 currentElement = clone;
 
                 currentElement.html(response);
-                $animate.enter(currentElement, null, $element);
+                $animate.enter(currentElement, null, $element, afterAnimation);
                 $compile(currentElement.contents())(currentScope);
-
-                if (isDefined(autoScrollExp) && (!autoScrollExp || scope.$eval(autoScrollExp))) {
-                  $anchorScroll();
-                }
-
                 currentScope.$emit('$includeContentLoaded');
                 scope.$eval(onloadExp);
               });
