@@ -1,5 +1,5 @@
 /**
- * @license AngularJS v1.2.0-5f6b092
+ * @license AngularJS v1.2.0-e4ec9f7
  * (c) 2010-2012 Google, Inc. http://angularjs.org
  * License: MIT
  */
@@ -1804,7 +1804,7 @@ function setupModuleLoader(window) {
  * - `codeName` – `{string}` – Code name of the release, such as "jiggling-armfat".
  */
 var version = {
-  full: '1.2.0-5f6b092',    // all of these placeholder strings will be replaced by grunt's
+  full: '1.2.0-e4ec9f7',    // all of these placeholder strings will be replaced by grunt's
   major: 1,    // package task
   minor: "NG_VERSION_MINOR",
   dot: 0,
@@ -16924,25 +16924,16 @@ function classDirective(name, selector) {
       <input type="button" value="set" ng-click="myVar='my-class'">
       <input type="button" value="clear" ng-click="myVar=''">
       <br>
-      <span ng-class="myVar">Sample Text</span>
+      <span class="base-class" ng-class="myVar">Sample Text</span>
      </file>
      <file name="style.css">
-       .my-class-add, .my-class-remove {
-         -webkit-transition:all cubic-bezier(0.250, 0.460, 0.450, 0.940) 0.5s;
-         -moz-transition:all cubic-bezier(0.250, 0.460, 0.450, 0.940) 0.5s;
-         -o-transition:all cubic-bezier(0.250, 0.460, 0.450, 0.940) 0.5s;
+       .base-class {
          transition:all cubic-bezier(0.250, 0.460, 0.450, 0.940) 0.5s;
        }
 
-       .my-class,
-       .my-class-add.my-class-add-active {
+       .base-class.my-class {
          color: red;
          font-size:3em;
-       }
-
-       .my-class-remove.my-class-remove-active {
-         font-size:1.0em;
-         color:black;
        }
      </file>
      <file name="scenario.js">
@@ -17748,10 +17739,11 @@ forEach(
         padding:10px;
       }
 
+      /&#42;
+        The transition styles can also be placed on the CSS base class above 
+      &#42;/
       .animate-if.ng-enter, .animate-if.ng-leave {
         -webkit-transition:all cubic-bezier(0.250, 0.460, 0.450, 0.940) 0.5s;
-        -moz-transition:all cubic-bezier(0.250, 0.460, 0.450, 0.940) 0.5s;
-        -o-transition:all cubic-bezier(0.250, 0.460, 0.450, 0.940) 0.5s;
         transition:all cubic-bezier(0.250, 0.460, 0.450, 0.940) 0.5s;
       }
 
@@ -17760,8 +17752,8 @@ forEach(
         opacity:0;
       }
 
-      .animate-if.ng-enter.ng-enter-active,
-      .animate-if.ng-leave {
+      .animate-if.ng-leave,
+      .animate-if.ng-enter.ng-enter-active {
         opacity:1;
       }
     </file>
@@ -17859,8 +17851,8 @@ var ngIfDirective = ['$animate', function($animate) {
        </select>
        url of the template: <tt>{{template.url}}</tt>
        <hr/>
-       <div class="example-animate-container">
-         <div class="include-example" ng-include="template.url"></div>
+       <div class="slide-animate-container">
+         <div class="slide-animate" ng-include="template.url"></div>
        </div>
      </div>
     </file>
@@ -17879,7 +17871,7 @@ var ngIfDirective = ['$animate', function($animate) {
       Content of template2.html
     </file>
     <file name="animations.css">
-      .example-animate-container {
+      .slide-animate-container {
         position:relative;
         background:white;
         border:1px solid black;
@@ -17887,14 +17879,12 @@ var ngIfDirective = ['$animate', function($animate) {
         overflow:hidden;
       }
 
-      .example-animate-container > div {
+      .slide-animate {
         padding:10px;
       }
 
-      .include-example.ng-enter, .include-example.ng-leave {
+      .slide-animate.ng-enter, .slide-animate.ng-leave {
         -webkit-transition:all cubic-bezier(0.250, 0.460, 0.450, 0.940) 0.5s;
-        -moz-transition:all cubic-bezier(0.250, 0.460, 0.450, 0.940) 0.5s;
-        -o-transition:all cubic-bezier(0.250, 0.460, 0.450, 0.940) 0.5s;
         transition:all cubic-bezier(0.250, 0.460, 0.450, 0.940) 0.5s;
 
         position:absolute;
@@ -17906,17 +17896,17 @@ var ngIfDirective = ['$animate', function($animate) {
         padding:10px;
       }
 
-      .include-example.ng-enter {
+      .slide-animate.ng-enter {
         top:-50px;
       }
-      .include-example.ng-enter.ng-enter-active {
+      .slide-animate.ng-enter.ng-enter-active {
         top:0;
       }
 
-      .include-example.ng-leave {
+      .slide-animate.ng-leave {
         top:0;
       }
-      .include-example.ng-leave.ng-leave-active {
+      .slide-animate.ng-leave.ng-leave-active {
         top:50px;
       }
     </file>
@@ -18466,49 +18456,35 @@ var ngPluralizeDirective = ['$locale', '$interpolate', function($locale, $interp
         border:1px solid black;
         list-style:none;
         margin:0;
-        padding:0;
+        padding:0 10px;
       }
 
-      .example-animate-container > li {
-        padding:10px;
+      .animate-repeat {
+        line-height:40px;
         list-style:none;
+        box-sizing:border-box;
       }
 
+      .animate-repeat.ng-move,
       .animate-repeat.ng-enter,
-      .animate-repeat.ng-leave,
-      .animate-repeat.ng-move {
+      .animate-repeat.ng-leave {
         -webkit-transition:all linear 0.5s;
-        -moz-transition:all linear 0.5s;
-        -o-transition:all linear 0.5s;
         transition:all linear 0.5s;
       }
 
+      .animate-repeat.ng-leave.ng-leave-active,
+      .animate-repeat.ng-move,
       .animate-repeat.ng-enter {
-        line-height:0;
         opacity:0;
-        padding-top:0;
-        padding-bottom:0;
+        max-height:0;
       }
+
+      .animate-repeat.ng-leave,
+      .animate-repeat.ng-move.ng-move-active,
       .animate-repeat.ng-enter.ng-enter-active {
-        line-height:20px;
         opacity:1;
-        padding:10px;
+        max-height:40px;
       }
-
-      .animate-repeat.ng-leave {
-        opacity:1;
-        line-height:20px;
-        padding:10px;
-      }
-      .animate-repeat.ng-leave.ng-leave-active {
-        opacity:0;
-        line-height:0;
-        padding-top:0;
-        padding-bottom:0;
-      }
-
-      .animate-repeat.ng-move { }
-      .animate-repeat.ng-move.ng-move-active { }
     </file>
     <file name="scenario.js">
        it('should render initial data set', function() {
@@ -18822,29 +18798,25 @@ var ngRepeatDirective = ['$parse', '$animate', function($parse, $animate) {
       </div>
     </file>
     <file name="animations.css">
-      .animate-show.ng-hide-add, 
-      .animate-show.ng-hide-remove {
+      .animate-show {
         -webkit-transition:all linear 0.5s;
-        -moz-transition:all linear 0.5s;
-        -o-transition:all linear 0.5s;
         transition:all linear 0.5s;
-        display:block!important;
-      }
-
-      .animate-show.ng-hide-add.ng-hide-add-active,
-      .animate-show.ng-hide-remove {
-        line-height:0;
-        opacity:0;
-        padding:0 10px;
-      }
-
-      .animate-show.ng-hide-add,
-      .animate-show.ng-hide-remove.ng-hide-remove-active {
         line-height:20px;
         opacity:1;
         padding:10px;
         border:1px solid black;
         background:white;
+      }
+
+      .animate-show.ng-hide-add,
+      .animate-show.ng-hide-remove {
+        display:block!important;
+      }
+
+      .animate-show.ng-hide {
+        line-height:0;
+        opacity:0;
+        padding:0 10px;
       }
 
       .check-element {
@@ -18975,29 +18947,25 @@ var ngShowDirective = ['$animate', function($animate) {
       </div>
     </file>
     <file name="animations.css">
-      .animate-hide.ng-hide-add, 
-      .animate-hide.ng-hide-remove {
+      .animate-hide {
         -webkit-transition:all linear 0.5s;
-        -moz-transition:all linear 0.5s;
-        -o-transition:all linear 0.5s;
         transition:all linear 0.5s;
-        display:block!important;
-      }
-
-      .animate-hide.ng-hide-add.ng-hide-add-active,
-      .animate-hide.ng-hide-remove {
-        line-height:0;
-        opacity:0;
-        padding:0 10px;
-      }
-
-      .animate-hide.ng-hide-add,
-      .animate-hide.ng-hide-remove.ng-hide-remove-active {
         line-height:20px;
         opacity:1;
         padding:10px;
         border:1px solid black;
         background:white;
+      }
+
+      .animate-hide.ng-hide-add,
+      .animate-hide.ng-hide-remove {
+        display:block!important;
+      }
+
+      .animate-hide.ng-hide {
+        line-height:0;
+        opacity:0;
+        padding:0 10px;
       }
 
       .check-element {
@@ -19128,9 +19096,9 @@ var ngStyleDirective = ngDirective(function(scope, element, attr) {
         <hr/>
         <div class="animate-switch-container"
           ng-switch on="selection">
-            <div ng-switch-when="settings">Settings Div</div>
-            <div ng-switch-when="home">Home Span</div>
-            <div ng-switch-default>default</div>
+            <div class="animate-switch" ng-switch-when="settings">Settings Div</div>
+            <div class="animate-switch" ng-switch-when="home">Home Span</div>
+            <div class="animate-switch" ng-switch-default>default</div>
         </div>
       </div>
     </file>
@@ -19149,15 +19117,12 @@ var ngStyleDirective = ngDirective(function(scope, element, attr) {
         overflow:hidden;
       }
 
-      .animate-switch-container > div {
+      .animate-switch {
         padding:10px;
       }
 
-      .animate-switch-container > .ng-enter,
-      .animate-switch-container > .ng-leave {
+      .animate-switch.ng-animate {
         -webkit-transition:all cubic-bezier(0.250, 0.460, 0.450, 0.940) 0.5s;
-        -moz-transition:all cubic-bezier(0.250, 0.460, 0.450, 0.940) 0.5s;
-        -o-transition:all cubic-bezier(0.250, 0.460, 0.450, 0.940) 0.5s;
         transition:all cubic-bezier(0.250, 0.460, 0.450, 0.940) 0.5s;
 
         position:absolute;
@@ -19167,18 +19132,13 @@ var ngStyleDirective = ngDirective(function(scope, element, attr) {
         bottom:0;
       }
 
-      .animate-switch-container > .ng-enter {
+      .animate-switch.ng-leave.ng-leave-active,
+      .animate-switch.ng-enter {
         top:-50px;
       }
-      .animate-switch-container > .ng-enter.ng-enter-active {
+      .animate-switch.ng-leave,
+      .animate-switch.ng-enter.ng-enter-active {
         top:0;
-      }
-
-      .animate-switch-container > .ng-leave {
-        top:0;
-      }
-      .animate-switch-container > .ng-leave.ng-leave-active {
-        top:50px;
       }
     </file>
     <file name="scenario.js">
