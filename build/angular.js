@@ -1,5 +1,5 @@
 /**
- * @license AngularJS v1.2.0-d1b0467
+ * @license AngularJS v1.2.0-e18d459
  * (c) 2010-2012 Google, Inc. http://angularjs.org
  * License: MIT
  */
@@ -1804,7 +1804,7 @@ function setupModuleLoader(window) {
  * - `codeName` – `{string}` – Code name of the release, such as "jiggling-armfat".
  */
 var version = {
-  full: '1.2.0-d1b0467',    // all of these placeholder strings will be replaced by grunt's
+  full: '1.2.0-e18d459',    // all of these placeholder strings will be replaced by grunt's
   major: 1,    // package task
   minor: "NG_VERSION_MINOR",
   dot: 0,
@@ -12967,7 +12967,8 @@ function $SnifferProvider() {
       csp: csp(),
       vendorPrefix: vendorPrefix,
       transitions : transitions,
-      animations : animations
+      animations : animations,
+      msie : msie
     };
   }];
 }
@@ -20027,7 +20028,7 @@ var styleDirective = valueFn({
 
 })(window, document);
 
-!angular.$$csp() && angular.element(document).find('head').prepend('<style type="text/css">@charset "UTF-8";[ng\\:cloak],[ng-cloak],[data-ng-cloak],[x-ng-cloak],.ng-cloak,.x-ng-cloak,.ng-hide{display:none !important;}ng\\:form{display:block;}</style>');
+!angular.$$csp() && angular.element(document).find('head').prepend('<style type="text/css">@charset "UTF-8";[ng\\:cloak],[ng-cloak],[data-ng-cloak],[x-ng-cloak],.ng-cloak,.x-ng-cloak,.ng-hide{display:none !important;}ng\\:form{display:block;}.ng-animate{clip:rect(1px,auto,auto,0);-ms-zoom:1.0001;}.ng-animate-active{clip:rect(0,auto,auto,0);-ms-zoom:1;}</style>');
 
 /**
  * Expose `angular`
