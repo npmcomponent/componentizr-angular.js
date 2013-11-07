@@ -9790,7 +9790,7 @@ if ( typeof module === "object" && module && typeof module.exports === "object" 
 })( window );
 
 /**
- * @license AngularJS v1.2.0-74d8479
+ * @license AngularJS v1.2.0-f95dca7
  * (c) 2010-2012 Google, Inc. http://angularjs.org
  * License: MIT
  */
@@ -11596,7 +11596,7 @@ function setupModuleLoader(window) {
  * - `codeName` – `{string}` – Code name of the release, such as "jiggling-armfat".
  */
 var version = {
-  full: '1.2.0-74d8479',    // all of these placeholder strings will be replaced by grunt's
+  full: '1.2.0-f95dca7',    // all of these placeholder strings will be replaced by grunt's
   major: 1,    // package task
   minor: "NG_VERSION_MINOR",
   dot: 0,
@@ -26720,6 +26720,7 @@ function classDirective(name, selector) {
      </file>
      <file name="style.css">
        .base-class {
+         -webkit-transition:all cubic-bezier(0.250, 0.460, 0.450, 0.940) 0.5s;
          transition:all cubic-bezier(0.250, 0.460, 0.450, 0.940) 0.5s;
        }
 
@@ -27817,7 +27818,7 @@ var ngIncludeDirective = ['$http', '$templateCache', '$anchorScroll', '$compile'
  * <div class="alert alert-error">
  * The only appropriate use of `ngInit` for aliasing special properties of
  * {@link api/ng.directive:ngRepeat `ngRepeat`}, as seen in the demo below. Besides this case, you
- * should use {@link guide/dev_guide.mvc.understanding_controller controllers} rather than `ngInit`
+ * should use {@link guide/controller controllers} rather than `ngInit`
  * to initialize values on a scope.
  * </div>
  *
