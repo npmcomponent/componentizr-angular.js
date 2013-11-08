@@ -9790,7 +9790,7 @@ if ( typeof module === "object" && module && typeof module.exports === "object" 
 })( window );
 
 /**
- * @license AngularJS v1.2.0-f673dbd
+ * @license AngularJS v1.2.0-10d3e72
  * (c) 2010-2012 Google, Inc. http://angularjs.org
  * License: MIT
  */
@@ -11078,7 +11078,6 @@ function bootstrap(element, modules) {
           element.data('$injector', injector);
           compile(element)(scope);
         });
-        animate.enabled(true);
       }]
     );
     return injector;
@@ -11594,7 +11593,7 @@ function setupModuleLoader(window) {
  * - `codeName` – `{string}` – Code name of the release, such as "jiggling-armfat".
  */
 var version = {
-  full: '1.2.0-f673dbd',    // all of these placeholder strings will be replaced by grunt's
+  full: '1.2.0-10d3e72',    // all of these placeholder strings will be replaced by grunt's
   major: 1,    // package task
   minor: "NG_VERSION_MINOR",
   dot: 0,
@@ -30366,15 +30365,10 @@ angular.scenario.Application.prototype.navigateTo = function(url, loadFn, errorF
 
         if ($window.angular) {
           // Disable animations
-
-          // TODO(i): this doesn't disable javascript animations
-          //          we don't need that for our tests, but it should be done
           $window.angular.resumeBootstrap([['$provide', function($provide) {
-            $provide.decorator('$sniffer', function($delegate) {
-              $delegate.transitions = false;
-              $delegate.animations = false;
-              return $delegate;
-            });
+            return ['$animate', function($animate) {
+              $animate.enabled(false);
+            }];
           }]]);
         }
 
