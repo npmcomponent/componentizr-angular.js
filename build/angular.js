@@ -1,5 +1,5 @@
 /**
- * @license AngularJS v1.2.1-1053605
+ * @license AngularJS v1.2.1-867fdba
  * (c) 2010-2012 Google, Inc. http://angularjs.org
  * License: MIT
  */
@@ -1801,7 +1801,7 @@ function setupModuleLoader(window) {
  * - `codeName` – `{string}` – Code name of the release, such as "jiggling-armfat".
  */
 var version = {
-  full: '1.2.1-1053605',    // all of these placeholder strings will be replaced by grunt's
+  full: '1.2.1-867fdba',    // all of these placeholder strings will be replaced by grunt's
   major: 1,    // package task
   minor: "NG_VERSION_MINOR",
   dot: 1,
@@ -12278,10 +12278,10 @@ function $SceDelegateProvider() {
  *
  * <pre class="prettyprint">
  *     <input ng-model="userHtml">
- *     <div ng-bind-html="{{userHtml}}">
+ *     <div ng-bind-html="userHtml">
  * </pre>
  *
- * Notice that `ng-bind-html` is bound to `{{userHtml}}` controlled by the user.  With SCE
+ * Notice that `ng-bind-html` is bound to `userHtml` controlled by the user.  With SCE
  * disabled, this application allows the user to render arbitrary HTML into the DIV.
  * In a more realistic example, one may be rendering user comments, blog articles, etc. via
  * bindings.  (HTML is just one example of a context where rendering user controlled input creates
