@@ -1,5 +1,5 @@
 /**
- * @license AngularJS v1.2.1-10fb628
+ * @license AngularJS v1.2.1-4b59ca8
  * (c) 2010-2012 Google, Inc. http://angularjs.org
  * License: MIT
  */
@@ -1801,7 +1801,7 @@ function setupModuleLoader(window) {
  * - `codeName` – `{string}` – Code name of the release, such as "jiggling-armfat".
  */
 var version = {
-  full: '1.2.1-10fb628',    // all of these placeholder strings will be replaced by grunt's
+  full: '1.2.1-4b59ca8',    // all of these placeholder strings will be replaced by grunt's
   major: 1,    // package task
   minor: "NG_VERSION_MINOR",
   dot: 1,
@@ -20029,11 +20029,6 @@ var styleDirective = valueFn({
 })(window, document);
 
 !angular.$$csp() && angular.element(document).find('head').prepend('<style type="text/css">@charset "UTF-8";[ng\\:cloak],[ng-cloak],[data-ng-cloak],[x-ng-cloak],.ng-cloak,.x-ng-cloak,.ng-hide{display:none !important;}ng\\:form{display:block;}.ng-animate-start{clip:rect(0,auto,auto,0);-ms-zoom:1.0001;}.ng-animate-active{clip:rect(-1px,auto,auto,0);-ms-zoom:1;}</style>');
-
-/**
- * Expose `angular`
- */
-module.exports = window.angular;
 
 /**
  * Expose `angular`
