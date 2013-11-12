@@ -1,5 +1,5 @@
 /**
- * @license AngularJS v1.2.1-bbdae6b
+ * @license AngularJS v1.2.1-c80cc0a
  * (c) 2010-2012 Google, Inc. http://angularjs.org
  * License: MIT
  */
@@ -1801,7 +1801,7 @@ function setupModuleLoader(window) {
  * - `codeName` – `{string}` – Code name of the release, such as "jiggling-armfat".
  */
 var version = {
-  full: '1.2.1-bbdae6b',    // all of these placeholder strings will be replaced by grunt's
+  full: '1.2.1-c80cc0a',    // all of these placeholder strings will be replaced by grunt's
   major: 1,    // package task
   minor: "NG_VERSION_MINOR",
   dot: 1,
@@ -17780,7 +17780,7 @@ forEach(
       }
 
       /&#42;
-        The transition styles can also be placed on the CSS base class above 
+        The transition styles can also be placed on the CSS base class above
       &#42;/
       .animate-if.ng-enter, .animate-if.ng-leave {
         -webkit-transition:all cubic-bezier(0.250, 0.460, 0.450, 0.940) 0.5s;
@@ -17812,16 +17812,16 @@ var ngIfDirective = ['$animate', function($animate) {
         $scope.$watch($attr.ngIf, function ngIfWatchAction(value) {
 
           if (toBoolean(value)) {
-
-            childScope = $scope.$new();
-            transclude(childScope, function (clone) {
-              block = {
-                startNode: clone[0],
-                endNode: clone[clone.length++] = document.createComment(' end ngIf: ' + $attr.ngIf + ' ')
-              };
-              $animate.enter(clone, $element.parent(), $element);
-            });
-
+            if (!childScope) {
+              childScope = $scope.$new();
+              transclude(childScope, function (clone) {
+                block = {
+                  startNode: clone[0],
+                  endNode: clone[clone.length++] = document.createComment(' end ngIf: ' + $attr.ngIf + ' ')
+                };
+                $animate.enter(clone, $element.parent(), $element);
+              });
+            }
           } else {
 
             if (childScope) {
