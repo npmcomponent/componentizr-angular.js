@@ -9790,7 +9790,7 @@ if ( typeof module === "object" && module && typeof module.exports === "object" 
 })( window );
 
 /**
- * @license AngularJS v1.2.1-8ead768
+ * @license AngularJS v1.2.1-5728d5d
  * (c) 2010-2012 Google, Inc. http://angularjs.org
  * License: MIT
  */
@@ -11593,7 +11593,7 @@ function setupModuleLoader(window) {
  * - `codeName` – `{string}` – Code name of the release, such as "jiggling-armfat".
  */
 var version = {
-  full: '1.2.1-8ead768',    // all of these placeholder strings will be replaced by grunt's
+  full: '1.2.1-5728d5d',    // all of these placeholder strings will be replaced by grunt's
   major: 1,    // package task
   minor: 2,
   dot: 1,
@@ -16767,9 +16767,11 @@ function $HttpProvider() {
      *
      * # Caching
      *
-     * To enable caching, set the configuration property `cache` to `true`. When the cache is
-     * enabled, `$http` stores the response from the server in local cache. Next time the
-     * response is served from the cache without sending a request to the server.
+     * To enable caching, set the request configuration `cache` property to `true` (to use default
+     * cache) or to a custom cache object (built with {@link ng.$cacheFactory `$cacheFactory`}).
+     * When the cache is enabled, `$http` stores the response from the server in the specified
+     * cache. The next time the same request is made, the response is served from the cache without
+     * sending a request to the server.
      *
      * Note that even if the response is served from cache, delivery of the data is asynchronous in
      * the same way that real requests are.
@@ -16778,9 +16780,13 @@ function $HttpProvider() {
      * cache, but the cache is not populated yet, only one request to the server will be made and
      * the remaining requests will be fulfilled using the response from the first request.
      *
-     * A custom default cache built with $cacheFactory can be provided in $http.defaults.cache.
-     * To skip it, set configuration property `cache` to `false`.
+     * You can change the default cache to a new object (built with
+     * {@link ng.$cacheFactory `$cacheFactory`}) by updating the
+     * {@link ng.$http#properties_defaults `$http.defaults.cache`} property. All requests who set
+     * their `cache` property to `true` will now use this cache object.
      *
+     * If you set the default cache to `false` then only requests that specify their own custom
+     * cache object will be cached.
      *
      * # Interceptors
      *
