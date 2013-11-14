@@ -9790,7 +9790,7 @@ if ( typeof module === "object" && module && typeof module.exports === "object" 
 })( window );
 
 /**
- * @license AngularJS v1.2.1-b56b2b2
+ * @license AngularJS v1.2.1-4bce3e2
  * (c) 2010-2012 Google, Inc. http://angularjs.org
  * License: MIT
  */
@@ -11593,7 +11593,7 @@ function setupModuleLoader(window) {
  * - `codeName` – `{string}` – Code name of the release, such as "jiggling-armfat".
  */
 var version = {
-  full: '1.2.1-b56b2b2',    // all of these placeholder strings will be replaced by grunt's
+  full: '1.2.1-4bce3e2',    // all of these placeholder strings will be replaced by grunt's
   major: 1,    // package task
   minor: 2,
   dot: 1,
@@ -26594,27 +26594,33 @@ var ngBindTemplateDirective = ['$interpolate', function($interpolate) {
  * @param {expression} ngBindHtml {@link guide/expression Expression} to evaluate.
  *
  * @example
- * Try it here: enter text in text box and watch the greeting change.
-   <doc:example module="ngBindHtmlExample" deps="angular-sanitize.js" >
-     <doc:source>
-       <script>
-         angular.module('ngBindHtmlExample', ['ngSanitize'])
-
-         .controller('ngBindHtmlCtrl', ['$scope', function ngBindHtmlCtrl($scope) {
-           $scope.myHTML = 'I am an <code>HTML</code>string with <a href="#">links!</a> and other <em>stuff</em>';
-         }]);
-       </script>
+   Try it here: enter text in text box and watch the greeting change.
+ 
+   <example module="ngBindHtmlExample" deps="angular-sanitize.js">
+     <file name="index.html">
        <div ng-controller="ngBindHtmlCtrl">
         <p ng-bind-html="myHTML"></p>
        </div>
-     </doc:source>
-     <doc:scenario>
+     </file>
+     
+     <file name="script.js">
+       angular.module('ngBindHtmlExample', ['ngSanitize'])
+
+       .controller('ngBindHtmlCtrl', ['$scope', function ngBindHtmlCtrl($scope) {
+         $scope.myHTML =
+            'I am an <code>HTML</code>string with <a href="#">links!</a> and other <em>stuff</em>';
+       }]);
+     </file>
+
+     <file name="scenario.js">
        it('should check ng-bind-html', function() {
          expect(using('.doc-example-live').binding('myHTML')).
-           toBe('I am an <code>HTML</code>string with <a href="#">links!</a> and other <em>stuff</em>');
+           toBe(
+           'I am an <code>HTML</code>string with <a href="#">links!</a> and other <em>stuff</em>'
+           );
        });
-     </doc:scenario>
-   </doc:example>
+     </file>
+   </example>
  */
 var ngBindHtmlDirective = ['$sce', '$parse', function($sce, $parse) {
   return function(scope, element, attr) {
