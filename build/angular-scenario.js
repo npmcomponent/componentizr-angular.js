@@ -9790,7 +9790,7 @@ if ( typeof module === "object" && module && typeof module.exports === "object" 
 })( window );
 
 /**
- * @license AngularJS v1.2.1-29975c0
+ * @license AngularJS v1.2.1-f56f521
  * (c) 2010-2012 Google, Inc. http://angularjs.org
  * License: MIT
  */
@@ -11593,7 +11593,7 @@ function setupModuleLoader(window) {
  * - `codeName` – `{string}` – Code name of the release, such as "jiggling-armfat".
  */
 var version = {
-  full: '1.2.1-29975c0',    // all of these placeholder strings will be replaced by grunt's
+  full: '1.2.1-f56f521',    // all of these placeholder strings will be replaced by grunt's
   major: 1,    // package task
   minor: 2,
   dot: 1,
@@ -24637,7 +24637,7 @@ var nullFormCtrl = {
  * @property {Object} $error Is an object hash, containing references to all invalid controls or
  *  forms, where:
  *
- *  - keys are validation tokens (error names) — such as `required`, `url` or `email`),
+ *  - keys are validation tokens (error names) — such as `required`, `url` or `email`,
  *  - values are arrays of controls or forms that are invalid with given error.
  *
  * @description
@@ -25822,6 +25822,11 @@ var VALID_CLASS = 'ng-valid',
  *      }
  *      ngModel.$formatters.push(formatter);
  *      </pre>
+ *
+ * @property {Array.<Function>} $viewChangeListeners Array of functions to execute whenever the
+ *     view value has changed. It is called with no arguments, and its return value is ignored.
+ *     This can be used in place of additional $watches against the model value.
+ *
  * @property {Object} $error An object hash with all errors as keys.
  *
  * @property {boolean} $pristine True if user has not interacted with the control yet.
@@ -26738,18 +26743,18 @@ function classDirective(name, selector) {
  * @example Example that demonstrates basic bindings via ngClass directive.
    <example>
      <file name="index.html">
-       <p ng-class="{strike: strike, bold: bold, red: red}">Map Syntax Example</p>
-       <input type="checkbox" ng-model="bold"> bold
-       <input type="checkbox" ng-model="strike"> strike
-       <input type="checkbox" ng-model="red"> red
+       <p ng-class="{strike: deleted, bold: important, red: error}">Map Syntax Example</p>
+       <input type="checkbox" ng-model="deleted"> deleted (apply "strike" class)<br>
+       <input type="checkbox" ng-model="important"> important (apply "bold" class)<br>
+       <input type="checkbox" ng-model="error"> error (apply "red" class)
        <hr>
        <p ng-class="style">Using String Syntax</p>
        <input type="text" ng-model="style" placeholder="Type: bold strike red">
        <hr>
        <p ng-class="[style1, style2, style3]">Using Array Syntax</p>
-       <input ng-model="style1" placeholder="Type: bold"><br>
-       <input ng-model="style2" placeholder="Type: strike"><br>
-       <input ng-model="style3" placeholder="Type: red"><br>
+       <input ng-model="style1" placeholder="Type: bold, strike or red"><br>
+       <input ng-model="style2" placeholder="Type: bold, strike or red"><br>
+       <input ng-model="style3" placeholder="Type: bold, strike or red"><br>
      </file>
      <file name="style.css">
        .strike {
@@ -26768,10 +26773,10 @@ function classDirective(name, selector) {
          expect(element('.doc-example-live p:first').prop('className')).not().toMatch(/bold/);
          expect(element('.doc-example-live p:first').prop('className')).not().toMatch(/red/);
 
-         input('bold').check();
+         input('important').check();
          expect(element('.doc-example-live p:first').prop('className')).toMatch(/bold/);
 
-         input('red').check();
+         input('error').check();
          expect(element('.doc-example-live p:first').prop('className')).toMatch(/red/);
        });
 
