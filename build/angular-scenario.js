@@ -9790,7 +9790,7 @@ if ( typeof module === "object" && module && typeof module.exports === "object" 
 })( window );
 
 /**
- * @license AngularJS v1.2.1-a7309b9
+ * @license AngularJS v1.2.1-5c74296
  * (c) 2010-2012 Google, Inc. http://angularjs.org
  * License: MIT
  */
@@ -11593,7 +11593,7 @@ function setupModuleLoader(window) {
  * - `codeName` – `{string}` – Code name of the release, such as "jiggling-armfat".
  */
 var version = {
-  full: '1.2.1-a7309b9',    // all of these placeholder strings will be replaced by grunt's
+  full: '1.2.1-5c74296',    // all of these placeholder strings will be replaced by grunt's
   major: 1,    // package task
   minor: 2,
   dot: 1,
@@ -18051,8 +18051,8 @@ function encodePath(path) {
   return segments.join('/');
 }
 
-function parseAbsoluteUrl(absoluteUrl, locationObj) {
-  var parsedUrl = urlResolve(absoluteUrl);
+function parseAbsoluteUrl(absoluteUrl, locationObj, appBase) {
+  var parsedUrl = urlResolve(absoluteUrl, appBase);
 
   locationObj.$$protocol = parsedUrl.protocol;
   locationObj.$$host = parsedUrl.hostname;
@@ -18060,12 +18060,12 @@ function parseAbsoluteUrl(absoluteUrl, locationObj) {
 }
 
 
-function parseAppUrl(relativeUrl, locationObj) {
+function parseAppUrl(relativeUrl, locationObj, appBase) {
   var prefixed = (relativeUrl.charAt(0) !== '/');
   if (prefixed) {
     relativeUrl = '/' + relativeUrl;
   }
-  var match = urlResolve(relativeUrl);
+  var match = urlResolve(relativeUrl, appBase);
   locationObj.$$path = decodeURIComponent(prefixed && match.pathname.charAt(0) === '/' ?
       match.pathname.substring(1) : match.pathname);
   locationObj.$$search = parseKeyValue(match.search);
@@ -18120,7 +18120,7 @@ function LocationHtml5Url(appBase, basePrefix) {
   this.$$html5 = true;
   basePrefix = basePrefix || '';
   var appBaseNoFile = stripFile(appBase);
-  parseAbsoluteUrl(appBase, this);
+  parseAbsoluteUrl(appBase, this, appBase);
 
 
   /**
@@ -18135,7 +18135,7 @@ function LocationHtml5Url(appBase, basePrefix) {
           appBaseNoFile);
     }
 
-    parseAppUrl(pathUrl, this);
+    parseAppUrl(pathUrl, this, appBase);
 
     if (!this.$$path) {
       this.$$path = '/';
@@ -18187,7 +18187,7 @@ function LocationHtml5Url(appBase, basePrefix) {
 function LocationHashbangUrl(appBase, hashPrefix) {
   var appBaseNoFile = stripFile(appBase);
 
-  parseAbsoluteUrl(appBase, this);
+  parseAbsoluteUrl(appBase, this, appBase);
 
 
   /**
@@ -18207,7 +18207,7 @@ function LocationHashbangUrl(appBase, hashPrefix) {
       throw $locationMinErr('ihshprfx', 'Invalid url "{0}", missing hash prefix "{1}".', url,
           hashPrefix);
     }
-    parseAppUrl(withoutHashUrl, this);
+    parseAppUrl(withoutHashUrl, this, appBase);
     this.$$compose();
   };
 
@@ -23062,7 +23062,7 @@ var originUrl = urlResolve(window.location.href, true);
  *   | pathname      | The pathname, beginning with "/"
  *
  */
-function urlResolve(url) {
+function urlResolve(url, base) {
   var href = url,
       pathname;
 
@@ -23087,9 +23087,8 @@ function urlResolve(url) {
    * do not include drive names for routing.
    */
 
-  pathname = removeWindowsDriveName(urlParsingNode.pathname);
+  pathname = removeWindowsDriveName(urlParsingNode.pathname, url, base);
   pathname = (pathname.charAt(0) === '/') ? pathname : '/' + pathname;
-
 
   // urlParsingNode provides the UrlUtils interface - http://url.spec.whatwg.org/#urlutils
   return {
@@ -23102,13 +23101,6 @@ function urlResolve(url) {
     port: urlParsingNode.port,
     pathname: pathname
   };
-
-  function removeWindowsDriveName (path) {
-    var firstPathSegmentMatch;
-
-    firstPathSegmentMatch = windowsFilePathExp.exec(path);
-    return firstPathSegmentMatch ? firstPathSegmentMatch[1] : path;
-  }
 }
 
 
@@ -23123,6 +23115,26 @@ function urlIsSameOrigin(requestUrl) {
   var parsed = (isString(requestUrl)) ? urlResolve(requestUrl) : requestUrl;
   return (parsed.protocol === originUrl.protocol &&
           parsed.host === originUrl.host);
+}
+
+function removeWindowsDriveName (path, url, base) {
+  var firstPathSegmentMatch;
+
+  //Get the relative path from the input URL.
+  if (url.indexOf(base) === 0) {
+    url = url.replace(base, '');
+  }
+
+  /*
+   * The input URL intentionally contains a
+   * first path segment that ends with a colon.
+   */
+  if (windowsFilePathExp.exec(url)) {
+    return path;
+  }
+
+  firstPathSegmentMatch = windowsFilePathExp.exec(path);
+  return firstPathSegmentMatch ? firstPathSegmentMatch[1] : path;
 }
 
 /**
