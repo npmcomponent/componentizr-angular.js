@@ -9790,7 +9790,7 @@ if ( typeof module === "object" && module && typeof module.exports === "object" 
 })( window );
 
 /**
- * @license AngularJS v1.2.1-4bce3e2
+ * @license AngularJS v1.2.1-29975c0
  * (c) 2010-2012 Google, Inc. http://angularjs.org
  * License: MIT
  */
@@ -11593,7 +11593,7 @@ function setupModuleLoader(window) {
  * - `codeName` – `{string}` – Code name of the release, such as "jiggling-armfat".
  */
 var version = {
-  full: '1.2.1-4bce3e2',    // all of these placeholder strings will be replaced by grunt's
+  full: '1.2.1-29975c0',    // all of these placeholder strings will be replaced by grunt's
   major: 1,    // package task
   minor: 2,
   dot: 1,
@@ -20245,7 +20245,7 @@ function $ParseProvider() {
  *      // Propagate promise resolution to 'then' functions using $apply().
  *      $rootScope.$apply();
  *      expect(resolvedValue).toEqual(123);
- *    });
+ *    }));
  *  </pre>
  */
 function $QProvider() {
@@ -26085,14 +26085,19 @@ var NgModelController = ['$scope', '$exceptionHandler', '$attrs', '$element', '$
    * @methodOf ng.directive:ngModel.NgModelController
    *
    * @description
-   * Read a value from view.
+   * Update the view value.
    *
-   * This method should be called from within a DOM event handler.
-   * For example {@link ng.directive:input input} or
+   * This method should be called when the view value changes, typically from within a DOM event handler.
+   * For example {@link ng.directive:input input} and
    * {@link ng.directive:select select} directives call it.
    *
-   * It internally calls all `$parsers` (including validators) and updates the `$modelValue` and the actual model path.
-   * Lastly it calls all registered change listeners.
+   * It will update the $viewValue, then pass this value through each of the functions in `$parsers`,
+   * which includes any validators. The value that comes out of this `$parsers` pipeline, be applied to
+   * `$modelValue` and the **expression** specified in the `ng-model` attribute.
+   * 
+   * Lastly, all the registered change listeners, in the `$viewChangeListeners` list, are called.
+   *
+   * Note that calling this function does not trigger a `$digest`.
    *
    * @param {string} value Value from the view.
    */
