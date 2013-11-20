@@ -9790,7 +9790,7 @@ if ( typeof module === "object" && module && typeof module.exports === "object" 
 })( window );
 
 /**
- * @license AngularJS v1.2.2-31ffc74
+ * @license AngularJS v1.2.2-b186d70
  * (c) 2010-2012 Google, Inc. http://angularjs.org
  * License: MIT
  */
@@ -9860,7 +9860,7 @@ function minErr(module) {
       return match;
     });
 
-    message = message + '\nhttp://errors.angularjs.org/1.2.2-31ffc74/' +
+    message = message + '\nhttp://errors.angularjs.org/1.2.2-b186d70/' +
       (module ? module + '/' : '') + code;
     for (i = 2; i < arguments.length; i++) {
       message = message + (i == 2 ? '?' : '&') + 'p' + (i-2) + '=' +
@@ -11612,7 +11612,7 @@ function setupModuleLoader(window) {
  * - `codeName` – `{string}` – Code name of the release, such as "jiggling-armfat".
  */
 var version = {
-  full: '1.2.2-31ffc74',    // all of these placeholder strings will be replaced by grunt's
+  full: '1.2.2-b186d70',    // all of these placeholder strings will be replaced by grunt's
   major: 1,    // package task
   minor: 2,
   dot: 2,
@@ -24484,8 +24484,11 @@ var htmlAnchorDirective = valueFn({
  *
  * The HTML specification does not require browsers to preserve the values of boolean attributes
  * such as disabled. (Their presence means true and their absence means false.)
- * This prevents the Angular compiler from retrieving the binding expression.
+ * If we put an Angular interpolation expression into such an attribute then the
+ * binding information would be lost when the browser removes the attribute.
  * The `ngDisabled` directive solves this problem for the `disabled` attribute.
+ * This complementary directive is not removed by the browser and so provides
+ * a permanent reliable place to store the binding information.
  *
  * @example
     <doc:example>
@@ -24516,8 +24519,11 @@ var htmlAnchorDirective = valueFn({
  * @description
  * The HTML specification does not require browsers to preserve the values of boolean attributes
  * such as checked. (Their presence means true and their absence means false.)
- * This prevents the Angular compiler from retrieving the binding expression.
+ * If we put an Angular interpolation expression into such an attribute then the
+ * binding information would be lost when the browser removes the attribute.
  * The `ngChecked` directive solves this problem for the `checked` attribute.
+ * This complementary directive is not removed by the browser and so provides
+ * a permanent reliable place to store the binding information.
  * @example
     <doc:example>
       <doc:source>
@@ -24547,8 +24553,12 @@ var htmlAnchorDirective = valueFn({
  * @description
  * The HTML specification does not require browsers to preserve the values of boolean attributes
  * such as readonly. (Their presence means true and their absence means false.)
- * This prevents the Angular compiler from retrieving the binding expression.
+ * If we put an Angular interpolation expression into such an attribute then the
+ * binding information would be lost when the browser removes the attribute.
  * The `ngReadonly` directive solves this problem for the `readonly` attribute.
+ * This complementary directive is not removed by the browser and so provides
+ * a permanent reliable place to store the binding information.
+
  * @example
     <doc:example>
       <doc:source>
@@ -24578,8 +24588,11 @@ var htmlAnchorDirective = valueFn({
  * @description
  * The HTML specification does not require browsers to preserve the values of boolean attributes
  * such as selected. (Their presence means true and their absence means false.)
- * This prevents the Angular compiler from retrieving the binding expression.
+ * If we put an Angular interpolation expression into such an attribute then the
+ * binding information would be lost when the browser removes the attribute.
  * The `ngSelected` directive solves this problem for the `selected` atttribute.
+ * This complementary directive is not removed by the browser and so provides
+ * a permanent reliable place to store the binding information.
  * @example
     <doc:example>
       <doc:source>
@@ -24611,8 +24624,12 @@ var htmlAnchorDirective = valueFn({
  * @description
  * The HTML specification does not require browsers to preserve the values of boolean attributes
  * such as open. (Their presence means true and their absence means false.)
- * This prevents the Angular compiler from retrieving the binding expression.
+ * If we put an Angular interpolation expression into such an attribute then the
+ * binding information would be lost when the browser removes the attribute.
  * The `ngOpen` directive solves this problem for the `open` attribute.
+ * This complementary directive is not removed by the browser and so provides
+ * a permanent reliable place to store the binding information.
+
  *
  * @example
      <doc:example>
@@ -28102,7 +28119,7 @@ var ngNonBindableDirective = ngDirective({ terminal: true, priority: 1000 });
  * other numbers, for example 12, so that instead of showing "12 people are viewing", you can
  * show "a dozen people are viewing".
  *
- * You can use a set of closed braces(`{}`) as a placeholder for the number that you want substituted
+ * You can use a set of closed braces (`{}`) as a placeholder for the number that you want substituted
  * into pluralized strings. In the previous example, Angular will replace `{}` with
  * <span ng-non-bindable>`{{personCount}}`</span>. The closed braces `{}` is a placeholder
  * for <span ng-non-bindable>{{numberExpression}}</span>.
@@ -28363,7 +28380,7 @@ var ngPluralizeDirective = ['$locale', '$interpolate', function($locale, $interp
  *     For example: `item in items track by $id(item)`. A built in `$id()` function can be used to assign a unique
  *     `$$hashKey` property to each item in the array. This property is then used as a key to associated DOM elements
  *     with the corresponding item in the array by identity. Moving the same object in array would move the DOM
- *     element in the same way ian the DOM.
+ *     element in the same way in the DOM.
  *
  *     For example: `item in items track by item.id` is a typical pattern when the items come from the database. In this
  *     case the object identity does not matter. Two objects are considered equivalent as long as their `id`
