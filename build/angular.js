@@ -1,5 +1,5 @@
 /**
- * @license AngularJS v1.2.2-edf5503
+ * @license AngularJS v1.2.2-92dbe54
  * (c) 2010-2012 Google, Inc. http://angularjs.org
  * License: MIT
  */
@@ -68,7 +68,7 @@ function minErr(module) {
       return match;
     });
 
-    message = message + '\nhttp://errors.angularjs.org/1.2.2-edf5503/' +
+    message = message + '\nhttp://errors.angularjs.org/1.2.2-92dbe54/' +
       (module ? module + '/' : '') + code;
     for (i = 2; i < arguments.length; i++) {
       message = message + (i == 2 ? '?' : '&') + 'p' + (i-2) + '=' +
@@ -159,7 +159,8 @@ function minErr(module) {
     -assertArgFn,
     -assertNotHasOwnProperty,
     -getter,
-    -getBlockElements
+    -getBlockElements,
+    -tokenDifference
 
 */
 
@@ -1431,6 +1432,27 @@ function getBlockElements(block) {
 }
 
 /**
+ * Return the string difference between tokens of the original string compared to the old string
+ * @param {str1} string original string value
+ * @param {str2} string new string value
+ */
+function tokenDifference(str1, str2) {
+  var values = '',
+      tokens1 = str1.split(/\s+/),
+      tokens2 = str2.split(/\s+/);
+
+  outer:
+  for(var i=0;i<tokens1.length;i++) {
+    var token = tokens1[i];
+    for(var j=0;j<tokens2.length;j++) {
+      if(token == tokens2[j]) continue outer;
+    }
+    values += (values.length > 0 ? ' ' : '') + token;
+  }
+  return values;
+}
+
+/**
  * @ngdoc interface
  * @name angular.Module
  * @description
@@ -1820,7 +1842,7 @@ function setupModuleLoader(window) {
  * - `codeName` – `{string}` – Code name of the release, such as "jiggling-armfat".
  */
 var version = {
-  full: '1.2.2-edf5503',    // all of these placeholder strings will be replaced by grunt's
+  full: '1.2.2-92dbe54',    // all of these placeholder strings will be replaced by grunt's
   major: 1,    // package task
   minor: 2,
   dot: 2,
@@ -3861,13 +3883,14 @@ var $AnimateProvider = ['$provide', function($provide) {
        *   inserted into the DOM
        */
       enter : function(element, parent, after, done) {
-        var afterNode = after && after[after.length - 1];
-        var parentNode = parent && parent[0] || afterNode && afterNode.parentNode;
-        // IE does not like undefined so we have to pass null.
-        var afterNextSibling = (afterNode && afterNode.nextSibling) || null;
-        forEach(element, function(node) {
-          parentNode.insertBefore(node, afterNextSibling);
-        });
+        if (after) {
+          after.after(element);
+        } else {
+          if (!parent || !parent[0]) {
+            parent = after.parent();
+          }
+          parent.append(element);
+        }
         done && $timeout(done, 0, false);
       },
 
@@ -5288,8 +5311,8 @@ function $CompileProvider($provide) {
         if(key == 'class') {
           value = value || '';
           var current = this.$$element.attr('class') || '';
-          this.$removeClass(tokenDifference(current, value).join(' '));
-          this.$addClass(tokenDifference(value, current).join(' '));
+          this.$removeClass(tokenDifference(current, value));
+          this.$addClass(tokenDifference(value, current));
         } else {
           var booleanKey = getBooleanAttrName(this.$$element[0], key),
               normalizedVal,
@@ -5347,22 +5370,6 @@ function $CompileProvider($provide) {
             $exceptionHandler(e);
           }
         });
-
-        function tokenDifference(str1, str2) {
-          var values = [],
-              tokens1 = str1.split(/\s+/),
-              tokens2 = str2.split(/\s+/);
-
-          outer:
-          for(var i=0;i<tokens1.length;i++) {
-            var token = tokens1[i];
-            for(var j=0;j<tokens2.length;j++) {
-              if(token == tokens2[j]) continue outer;
-            }
-            values.push(token);
-          }
-          return values;
-        }
       },
 
 
@@ -16959,9 +16966,9 @@ function classDirective(name, selector) {
             var mod = $index & 1;
             if (mod !== old$index & 1) {
               if (mod === selector) {
-                addClass(scope.$eval(attr[name]));
+                addClass(flattenClasses(scope.$eval(attr[name])));
               } else {
-                removeClass(scope.$eval(attr[name]));
+                removeClass(flattenClasses(scope.$eval(attr[name])));
               }
             }
           });
@@ -16970,22 +16977,33 @@ function classDirective(name, selector) {
 
         function ngClassWatchAction(newVal) {
           if (selector === true || scope.$index % 2 === selector) {
+            var newClasses = flattenClasses(newVal || '');
             if (oldVal && !equals(newVal,oldVal)) {
-              removeClass(oldVal);
+              var oldClasses = flattenClasses(oldVal);
+              var toRemove = tokenDifference(oldClasses, newClasses);
+              if(toRemove.length > 0) {
+                removeClass(toRemove);
+              }
+
+              var toAdd = tokenDifference(newClasses, oldClasses);
+              if(toAdd.length > 0) {
+                addClass(toAdd);
+              }
+            } else {
+              addClass(newClasses);
             }
-            addClass(newVal);
           }
           oldVal = copy(newVal);
         }
 
 
         function removeClass(classVal) {
-          attr.$removeClass(flattenClasses(classVal));
+          attr.$removeClass(classVal);
         }
 
 
         function addClass(classVal) {
-          attr.$addClass(flattenClasses(classVal));
+          attr.$addClass(classVal);
         }
 
         function flattenClasses(classVal) {
