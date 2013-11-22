@@ -1,5 +1,5 @@
 /**
- * @license AngularJS v1.2.2-3cdda24
+ * @license AngularJS v1.2.2-b51338a
  * (c) 2010-2012 Google, Inc. http://angularjs.org
  * License: MIT
  */
@@ -68,7 +68,7 @@ function minErr(module) {
       return match;
     });
 
-    message = message + '\nhttp://errors.angularjs.org/1.2.2-3cdda24/' +
+    message = message + '\nhttp://errors.angularjs.org/1.2.2-b51338a/' +
       (module ? module + '/' : '') + code;
     for (i = 2; i < arguments.length; i++) {
       message = message + (i == 2 ? '?' : '&') + 'p' + (i-2) + '=' +
@@ -1825,7 +1825,7 @@ function setupModuleLoader(window) {
  * - `codeName` – `{string}` – Code name of the release, such as "jiggling-armfat".
  */
 var version = {
-  full: '1.2.2-3cdda24',    // all of these placeholder strings will be replaced by grunt's
+  full: '1.2.2-b51338a',    // all of these placeholder strings will be replaced by grunt's
   major: 1,    // package task
   minor: 2,
   dot: 2,
@@ -6386,10 +6386,15 @@ function $CompileProvider($provide) {
 
 
     function getTrustedContext(node, attrNormalizedName) {
+      if (attrNormalizedName == "srcdoc") {
+        return $sce.HTML;
+      }
+      var tag = nodeName_(node);
       // maction[xlink:href] can source SVG.  It's not limited to <maction>.
       if (attrNormalizedName == "xlinkHref" ||
-          (nodeName_(node) != "IMG" && (attrNormalizedName == "src" ||
-                                        attrNormalizedName == "ngSrc"))) {
+          (tag == "FORM" && attrNormalizedName == "action") ||
+          (tag != "IMG" && (attrNormalizedName == "src" ||
+                            attrNormalizedName == "ngSrc"))) {
         return $sce.RESOURCE_URL;
       }
     }
@@ -7819,6 +7824,8 @@ function $HttpBackendProvider() {
 }
 
 function createHttpBackend($browser, XHR, $browserDefer, callbacks, rawDocument, locationProtocol) {
+  var ABORTED = -1;
+
   // TODO(vojta): fix the signature
   return function(method, url, post, callback, headers, timeout, withCredentials, responseType) {
     var status;
@@ -7854,13 +7861,19 @@ function createHttpBackend($browser, XHR, $browserDefer, callbacks, rawDocument,
       // always async
       xhr.onreadystatechange = function() {
         if (xhr.readyState == 4) {
-          var responseHeaders = xhr.getAllResponseHeaders();
+          var responseHeaders = null,
+              response = null;
+
+          if(status !== ABORTED) {
+            responseHeaders = xhr.getAllResponseHeaders();
+            response = xhr.responseType ? xhr.response : xhr.responseText;
+          }
 
           // responseText is the old-school way of retrieving response (supported by IE8 & 9)
           // response/responseType properties were introduced in XHR Level2 spec (supported by IE10)
           completeRequest(callback,
               status || xhr.status,
-              (xhr.responseType ? xhr.response : xhr.responseText),
+              response,
               responseHeaders);
         }
       };
@@ -7884,7 +7897,7 @@ function createHttpBackend($browser, XHR, $browserDefer, callbacks, rawDocument,
 
 
     function timeoutRequest() {
-      status = -1;
+      status = ABORTED;
       jsonpDone && jsonpDone();
       xhr && xhr.abort();
     }
