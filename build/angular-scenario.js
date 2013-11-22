@@ -9790,7 +9790,7 @@ if ( typeof module === "object" && module && typeof module.exports === "object" 
 })( window );
 
 /**
- * @license AngularJS v1.2.2-588d32a
+ * @license AngularJS v1.2.2-3cdda24
  * (c) 2010-2012 Google, Inc. http://angularjs.org
  * License: MIT
  */
@@ -9860,7 +9860,7 @@ function minErr(module) {
       return match;
     });
 
-    message = message + '\nhttp://errors.angularjs.org/1.2.2-588d32a/' +
+    message = message + '\nhttp://errors.angularjs.org/1.2.2-3cdda24/' +
       (module ? module + '/' : '') + code;
     for (i = 2; i < arguments.length; i++) {
       message = message + (i == 2 ? '?' : '&') + 'p' + (i-2) + '=' +
@@ -11239,7 +11239,12 @@ function setupModuleLoader(window) {
     return obj[name] || (obj[name] = factory());
   }
 
-  return ensure(ensure(window, 'angular', Object), 'module', function() {
+  var angular = ensure(window, 'angular', Object);
+
+  // We need to expose `angular.$$minErr` to modules such as `ngResource` that reference it during bootstrap
+  angular.$$minErr = angular.$$minErr || minErr;
+
+  return ensure(angular, 'module', function() {
     /** @type {Object.<string, angular.Module>} */
     var modules = {};
 
@@ -11612,7 +11617,7 @@ function setupModuleLoader(window) {
  * - `codeName` – `{string}` – Code name of the release, such as "jiggling-armfat".
  */
 var version = {
-  full: '1.2.2-588d32a',    // all of these placeholder strings will be replaced by grunt's
+  full: '1.2.2-3cdda24',    // all of these placeholder strings will be replaced by grunt's
   major: 1,    // package task
   minor: 2,
   dot: 2,
@@ -27980,18 +27985,23 @@ var ngIncludeDirective = ['$http', '$templateCache', '$anchorScroll', '$compile'
               if (thisChangeId !== changeCounter) return;
               var newScope = scope.$new();
 
-              $transclude(newScope, function(clone) {
-                cleanupLastIncludeContent();
+              // Note: This will also link all children of ng-include that were contained in the original
+              // html. If that content contains controllers, ... they could pollute/change the scope.
+              // However, using ng-include on an element with additional content does not make sense...
+              // Note: We can't remove them in the cloneAttchFn of $transclude as that
+              // function is called before linking the content, which would apply child
+              // directives to non existing elements.
+              var clone = $transclude(newScope, noop);
+              cleanupLastIncludeContent();
 
-                currentScope = newScope;
-                currentElement = clone;
+              currentScope = newScope;
+              currentElement = clone;
 
-                currentElement.html(response);
-                $animate.enter(currentElement, null, $element, afterAnimation);
-                $compile(currentElement.contents())(currentScope);
-                currentScope.$emit('$includeContentLoaded');
-                scope.$eval(onloadExp);
-              });
+              currentElement.html(response);
+              $animate.enter(currentElement, null, $element, afterAnimation);
+              $compile(currentElement.contents())(currentScope);
+              currentScope.$emit('$includeContentLoaded');
+              scope.$eval(onloadExp);
             }).error(function() {
               if (thisChangeId === changeCounter) cleanupLastIncludeContent();
             });
