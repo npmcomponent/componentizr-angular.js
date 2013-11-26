@@ -1,5 +1,5 @@
 /**
- * @license AngularJS v1.2.3-fdab42a
+ * @license AngularJS v1.2.3-ef7ca2f
  * (c) 2010-2014 Google, Inc. http://angularjs.org
  * License: MIT
  */
@@ -68,7 +68,7 @@ function minErr(module) {
       return match;
     });
 
-    message = message + '\nhttp://errors.angularjs.org/1.2.3-fdab42a/' +
+    message = message + '\nhttp://errors.angularjs.org/1.2.3-ef7ca2f/' +
       (module ? module + '/' : '') + code;
     for (i = 2; i < arguments.length; i++) {
       message = message + (i == 2 ? '?' : '&') + 'p' + (i-2) + '=' +
@@ -1825,7 +1825,7 @@ function setupModuleLoader(window) {
  * - `codeName` – `{string}` – Code name of the release, such as "jiggling-armfat".
  */
 var version = {
-  full: '1.2.3-fdab42a',    // all of these placeholder strings will be replaced by grunt's
+  full: '1.2.3-ef7ca2f',    // all of these placeholder strings will be replaced by grunt's
   major: 1,    // package task
   minor: 2,
   dot: 3,
@@ -7818,12 +7818,11 @@ var XHR = window.XMLHttpRequest || function() {
  */
 function $HttpBackendProvider() {
   this.$get = ['$browser', '$window', '$document', function($browser, $window, $document) {
-    return createHttpBackend($browser, XHR, $browser.defer, $window.angular.callbacks,
-        $document[0], $window.location.protocol.replace(':', ''));
+    return createHttpBackend($browser, XHR, $browser.defer, $window.angular.callbacks, $document[0]);
   }];
 }
 
-function createHttpBackend($browser, XHR, $browserDefer, callbacks, rawDocument, locationProtocol) {
+function createHttpBackend($browser, XHR, $browserDefer, callbacks, rawDocument) {
   var ABORTED = -1;
 
   // TODO(vojta): fix the signature
@@ -7903,14 +7902,14 @@ function createHttpBackend($browser, XHR, $browserDefer, callbacks, rawDocument,
     }
 
     function completeRequest(callback, status, response, headersString) {
-      var protocol = locationProtocol || urlResolve(url).protocol;
+      var protocol = urlResolve(url).protocol;
 
       // cancel timeout and subsequent timeout promise resolution
       timeoutId && $browserDefer.cancel(timeoutId);
       jsonpDone = xhr = null;
 
       // fix status code for file protocol (it's always 0)
-      status = (protocol == 'file') ? (response ? 200 : 404) : status;
+      status = (protocol == 'file' && status === 0) ? (response ? 200 : 404) : status;
 
       // normalize IE bug (http://bugs.jquery.com/ticket/1450)
       status = status == 1223 ? 204 : status;
