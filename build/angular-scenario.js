@@ -9790,7 +9790,7 @@ if ( typeof module === "object" && module && typeof module.exports === "object" 
 })( window );
 
 /**
- * @license AngularJS v1.2.4-5189009
+ * @license AngularJS v1.2.4-91f2d69
  * (c) 2010-2014 Google, Inc. http://angularjs.org
  * License: MIT
  */
@@ -9860,7 +9860,7 @@ function minErr(module) {
       return match;
     });
 
-    message = message + '\nhttp://errors.angularjs.org/1.2.4-5189009/' +
+    message = message + '\nhttp://errors.angularjs.org/1.2.4-91f2d69/' +
       (module ? module + '/' : '') + code;
     for (i = 2; i < arguments.length; i++) {
       message = message + (i == 2 ? '?' : '&') + 'p' + (i-2) + '=' +
@@ -11618,7 +11618,7 @@ function setupModuleLoader(window) {
  * - `codeName` – `{string}` – Code name of the release, such as "jiggling-armfat".
  */
 var version = {
-  full: '1.2.4-5189009',    // all of these placeholder strings will be replaced by grunt's
+  full: '1.2.4-91f2d69',    // all of these placeholder strings will be replaced by grunt's
   major: 1,    // package task
   minor: 2,
   dot: 4,
@@ -21417,11 +21417,12 @@ function $RootScopeProvider(){
        */
       $destroy: function() {
         // we can't destroy the root scope or a scope that has been already destroyed
-        if ($rootScope == this || this.$$destroyed) return;
+        if (this.$$destroyed) return;
         var parent = this.$parent;
 
         this.$broadcast('$destroy');
         this.$$destroyed = true;
+        if (this === $rootScope) return;
 
         if (parent.$$childHead == this) parent.$$childHead = this.$$nextSibling;
         if (parent.$$childTail == this) parent.$$childTail = this.$$prevSibling;
