@@ -9790,7 +9790,7 @@ if ( typeof module === "object" && module && typeof module.exports === "object" 
 })( window );
 
 /**
- * @license AngularJS v1.2.4-251881d
+ * @license AngularJS v1.2.4-1160628
  * (c) 2010-2014 Google, Inc. http://angularjs.org
  * License: MIT
  */
@@ -9860,7 +9860,7 @@ function minErr(module) {
       return match;
     });
 
-    message = message + '\nhttp://errors.angularjs.org/1.2.4-251881d/' +
+    message = message + '\nhttp://errors.angularjs.org/1.2.4-1160628/' +
       (module ? module + '/' : '') + code;
     for (i = 2; i < arguments.length; i++) {
       message = message + (i == 2 ? '?' : '&') + 'p' + (i-2) + '=' +
@@ -11201,23 +11201,25 @@ function getter(obj, path, bindFnToScope) {
 }
 
 /**
- * Return the siblings between `startNode` and `endNode`, inclusive
- * @param {Object} object with `startNode` and `endNode` properties
+ * Return the DOM siblings between the first and last node in the given array.
+ * @param {Array} array like object
  * @returns jQlite object containing the elements
  */
-function getBlockElements(block) {
-  if (block.startNode === block.endNode) {
-    return jqLite(block.startNode);
+function getBlockElements(nodes) {
+  var startNode = nodes[0],
+      endNode = nodes[nodes.length - 1];
+  if (startNode === endNode) {
+    return jqLite(startNode);
   }
 
-  var element = block.startNode;
+  var element = startNode;
   var elements = [element];
 
   do {
     element = element.nextSibling;
     if (!element) break;
     elements.push(element);
-  } while (element !== block.endNode);
+  } while (element !== endNode);
 
   return jqLite(elements);
 }
@@ -11618,7 +11620,7 @@ function setupModuleLoader(window) {
  * - `codeName` – `{string}` – Code name of the release, such as "jiggling-armfat".
  */
 var version = {
-  full: '1.2.4-251881d',    // all of these placeholder strings will be replaced by grunt's
+  full: '1.2.4-1160628',    // all of these placeholder strings will be replaced by grunt's
   major: 1,    // package task
   minor: 2,
   dot: 4,
@@ -15338,7 +15340,7 @@ function $CompileProvider($provide, $$sanitizeUriProvider) {
                 createBoundTranscludeFn(scope, childTranscludeFn || transcludeFn)
               );
             } else {
-              nodeLinkFn(childLinkFn, childScope, node, undefined, boundTranscludeFn);
+              nodeLinkFn(childLinkFn, childScope, node, $rootElement, boundTranscludeFn);
             }
           } else if (childLinkFn) {
             childLinkFn(scope, node.childNodes, undefined, boundTranscludeFn);
@@ -27869,9 +27871,12 @@ var ngIfDirective = ['$animate', function($animate) {
             if (!childScope) {
               childScope = $scope.$new();
               $transclude(childScope, function (clone) {
+                clone[clone.length++] = document.createComment(' end ngIf: ' + $attr.ngIf + ' ');
+                // Note: We only need the first/last node of the cloned nodes.
+                // However, we need to keep the reference to the jqlite wrapper as it might be changed later
+                // by a directive with templateUrl when it's template arrives.
                 block = {
-                  startNode: clone[0],
-                  endNode: clone[clone.length++] = document.createComment(' end ngIf: ' + $attr.ngIf + ' ')
+                  clone: clone
                 };
                 $animate.enter(clone, $element.parent(), $element);
               });
@@ -27884,7 +27889,7 @@ var ngIfDirective = ['$animate', function($animate) {
             }
 
             if (block) {
-              $animate.leave(getBlockElements(block));
+              $animate.leave(getBlockElements(block.clone));
               block = null;
             }
           }
@@ -28718,7 +28723,7 @@ var ngRepeatDirective = ['$parse', '$animate', function($parse, $animate) {
            } else if (nextBlockMap.hasOwnProperty(trackById)) {
              // restore lastBlockMap
              forEach(nextBlockOrder, function(block) {
-               if (block && block.startNode) lastBlockMap[block.id] = block;
+               if (block && block.scope) lastBlockMap[block.id] = block;
              });
              // This is a duplicate and we need to throw an error
              throw ngRepeatMinErr('dupes', "Duplicates in a repeater are not allowed. Use 'track by' expression to specify unique keys. Repeater: {0}, Duplicate key: {1}",
@@ -28735,7 +28740,7 @@ var ngRepeatDirective = ['$parse', '$animate', function($parse, $animate) {
             // lastBlockMap is our own object so we don't need to use special hasOwnPropertyFn
             if (lastBlockMap.hasOwnProperty(key)) {
               block = lastBlockMap[key];
-              elementsToRemove = getBlockElements(block);
+              elementsToRemove = getBlockElements(block.clone);
               $animate.leave(elementsToRemove);
               forEach(elementsToRemove, function(element) { element[NG_REMOVED] = true; });
               block.scope.$destroy();
@@ -28747,9 +28752,9 @@ var ngRepeatDirective = ['$parse', '$animate', function($parse, $animate) {
             key = (collection === collectionKeys) ? index : collectionKeys[index];
             value = collection[key];
             block = nextBlockOrder[index];
-            if (nextBlockOrder[index - 1]) previousNode = nextBlockOrder[index - 1].endNode;
+            if (nextBlockOrder[index - 1]) previousNode = getBlockEnd(nextBlockOrder[index - 1]);
 
-            if (block.startNode) {
+            if (block.scope) {
               // if we have already seen this object, then we need to reuse the
               // associated scope/element
               childScope = block.scope;
@@ -28759,11 +28764,11 @@ var ngRepeatDirective = ['$parse', '$animate', function($parse, $animate) {
                 nextNode = nextNode.nextSibling;
               } while(nextNode && nextNode[NG_REMOVED]);
 
-              if (block.startNode != nextNode) {
+              if (getBlockStart(block) != nextNode) {
                 // existing item which got moved
-                $animate.move(getBlockElements(block), null, jqLite(previousNode));
+                $animate.move(getBlockElements(block.clone), null, jqLite(previousNode));
               }
-              previousNode = block.endNode;
+              previousNode = getBlockEnd(block);
             } else {
               // new item which we don't know about
               childScope = $scope.$new();
@@ -28779,14 +28784,16 @@ var ngRepeatDirective = ['$parse', '$animate', function($parse, $animate) {
             childScope.$odd = !(childScope.$even = (index&1) === 0);
             // jshint bitwise: true
 
-            if (!block.startNode) {
+            if (!block.scope) {
               $transclude(childScope, function(clone) {
                 clone[clone.length++] = document.createComment(' end ngRepeat: ' + expression + ' ');
                 $animate.enter(clone, null, jqLite(previousNode));
                 previousNode = clone;
                 block.scope = childScope;
-                block.startNode = previousNode && previousNode.endNode ? previousNode.endNode : clone[0];
-                block.endNode = clone[clone.length - 1];
+                // Note: We only need the first/last node of the cloned nodes.
+                // However, we need to keep the reference to the jqlite wrapper as it might be changed later
+                // by a directive with templateUrl when it's template arrives.
+                block.clone = clone;
                 nextBlockMap[block.id] = block;
               });
             }
@@ -28795,6 +28802,14 @@ var ngRepeatDirective = ['$parse', '$animate', function($parse, $animate) {
         });
     }
   };
+
+  function getBlockStart(block) {
+    return block.clone[0];
+  }
+
+  function getBlockEnd(block) {
+    return block.clone[block.clone.length - 1];
+  }
 }];
 
 /**
