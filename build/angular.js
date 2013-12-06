@@ -1,5 +1,5 @@
 /**
- * @license AngularJS v1.2.4-a42dff4
+ * @license AngularJS v1.2.4-f497c28
  * (c) 2010-2014 Google, Inc. http://angularjs.org
  * License: MIT
  */
@@ -68,7 +68,7 @@ function minErr(module) {
       return match;
     });
 
-    message = message + '\nhttp://errors.angularjs.org/1.2.4-a42dff4/' +
+    message = message + '\nhttp://errors.angularjs.org/1.2.4-f497c28/' +
       (module ? module + '/' : '') + code;
     for (i = 2; i < arguments.length; i++) {
       message = message + (i == 2 ? '?' : '&') + 'p' + (i-2) + '=' +
@@ -1826,7 +1826,7 @@ function setupModuleLoader(window) {
  * - `codeName` – `{string}` – Code name of the release, such as "jiggling-armfat".
  */
 var version = {
-  full: '1.2.4-a42dff4',    // all of these placeholder strings will be replaced by grunt's
+  full: '1.2.4-f497c28',    // all of these placeholder strings will be replaced by grunt's
   major: 1,    // package task
   minor: 2,
   dot: 4,
@@ -11026,6 +11026,7 @@ function qFactory(nextTick, exceptionHandler) {
 function $RootScopeProvider(){
   var TTL = 10;
   var $rootScopeMinErr = minErr('$rootScope');
+  var lastDirtyWatch = null;
 
   this.digestTtl = function(value) {
     if (arguments.length) {
@@ -11280,6 +11281,8 @@ function $RootScopeProvider(){
               eq: !!objectEquality
             };
 
+        lastDirtyWatch = null;
+
         // in the case user pass string, we need to compile it, do we really need this ?
         if (!isFunction(listener)) {
           var listenFn = compileToFn(listener || noop, 'listener');
@@ -11508,6 +11511,8 @@ function $RootScopeProvider(){
 
         beginPhase('$digest');
 
+        lastDirtyWatch = null;
+
         do { // "while dirty" loop
           dirty = false;
           current = target;
@@ -11520,8 +11525,10 @@ function $RootScopeProvider(){
               clearPhase();
               $exceptionHandler(e);
             }
+            lastDirtyWatch = null;
           }
 
+          traverseScopesLoop:
           do { // "traverse the scopes" loop
             if ((watchers = current.$$watchers)) {
               // process our watches
@@ -11531,22 +11538,30 @@ function $RootScopeProvider(){
                   watch = watchers[length];
                   // Most common watches are on primitives, in which case we can short
                   // circuit it with === operator, only when === fails do we use .equals
-                  if (watch && (value = watch.get(current)) !== (last = watch.last) &&
-                      !(watch.eq
-                          ? equals(value, last)
-                          : (typeof value == 'number' && typeof last == 'number'
-                             && isNaN(value) && isNaN(last)))) {
-                    dirty = true;
-                    watch.last = watch.eq ? copy(value) : value;
-                    watch.fn(value, ((last === initWatchVal) ? value : last), current);
-                    if (ttl < 5) {
-                      logIdx = 4 - ttl;
-                      if (!watchLog[logIdx]) watchLog[logIdx] = [];
-                      logMsg = (isFunction(watch.exp))
-                          ? 'fn: ' + (watch.exp.name || watch.exp.toString())
-                          : watch.exp;
-                      logMsg += '; newVal: ' + toJson(value) + '; oldVal: ' + toJson(last);
-                      watchLog[logIdx].push(logMsg);
+                  if (watch) {
+                    if ((value = watch.get(current)) !== (last = watch.last) &&
+                        !(watch.eq
+                            ? equals(value, last)
+                            : (typeof value == 'number' && typeof last == 'number'
+                               && isNaN(value) && isNaN(last)))) {
+                      dirty = true;
+                      lastDirtyWatch = watch;
+                      watch.last = watch.eq ? copy(value) : value;
+                      watch.fn(value, ((last === initWatchVal) ? value : last), current);
+                      if (ttl < 5) {
+                        logIdx = 4 - ttl;
+                        if (!watchLog[logIdx]) watchLog[logIdx] = [];
+                        logMsg = (isFunction(watch.exp))
+                            ? 'fn: ' + (watch.exp.name || watch.exp.toString())
+                            : watch.exp;
+                        logMsg += '; newVal: ' + toJson(value) + '; oldVal: ' + toJson(last);
+                        watchLog[logIdx].push(logMsg);
+                      }
+                    } else if (watch === lastDirtyWatch) {
+                      // If the most recently dirty watcher is now clean, short circuit since the remaining watchers
+                      // have already been tested.
+                      dirty = false;
+                      break traverseScopesLoop;
                     }
                   }
                 } catch (e) {
@@ -11559,12 +11574,15 @@ function $RootScopeProvider(){
             // Insanity Warning: scope depth-first traversal
             // yes, this code is a bit crazy, but it works and we have tests to prove it!
             // this piece should be kept in sync with the traversal in $broadcast
-            if (!(next = (current.$$childHead || (current !== target && current.$$nextSibling)))) {
+            if (!(next = (current.$$childHead ||
+                (current !== target && current.$$nextSibling)))) {
               while(current !== target && !(next = current.$$nextSibling)) {
                 current = current.$parent;
               }
             }
           } while ((current = next));
+
+          // `break traverseScopesLoop;` takes us to here
 
           if(dirty && !(ttl--)) {
             clearPhase();
@@ -11573,6 +11591,7 @@ function $RootScopeProvider(){
                 'Watchers fired in the last 5 iterations: {1}',
                 TTL, toJson(watchLog));
           }
+
         } while (dirty || asyncQueue.length);
 
         clearPhase();
