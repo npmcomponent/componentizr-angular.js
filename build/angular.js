@@ -1,5 +1,5 @@
 /**
- * @license AngularJS v1.2.5-d0ba1f8
+ * @license AngularJS v1.2.5-2d2deb6
  * (c) 2010-2014 Google, Inc. http://angularjs.org
  * License: MIT
  */
@@ -68,7 +68,7 @@ function minErr(module) {
       return match;
     });
 
-    message = message + '\nhttp://errors.angularjs.org/1.2.5-d0ba1f8/' +
+    message = message + '\nhttp://errors.angularjs.org/1.2.5-2d2deb6/' +
       (module ? module + '/' : '') + code;
     for (i = 2; i < arguments.length; i++) {
       message = message + (i == 2 ? '?' : '&') + 'p' + (i-2) + '=' +
@@ -1828,7 +1828,7 @@ function setupModuleLoader(window) {
  * - `codeName` – `{string}` – Code name of the release, such as "jiggling-armfat".
  */
 var version = {
-  full: '1.2.5-d0ba1f8',    // all of these placeholder strings will be replaced by grunt's
+  full: '1.2.5-2d2deb6',    // all of these placeholder strings will be replaced by grunt's
   major: 1,    // package task
   minor: 2,
   dot: 5,
@@ -2912,6 +2912,28 @@ HashMap.prototype = {
  *     $compile($document)($rootScope);
  *     $rootScope.$digest();
  *   });
+ * </pre>
+ * 
+ * Sometimes you want to get access to the injector of a currently running Angular app
+ * from outside Angular. Perhaps, you want to inject and compile some markup after the
+ * application has been bootstrapped. You can do this using extra `injector()` added
+ * to JQuery/jqLite elements. See {@link angular.element}.
+ * 
+ * *This is fairly rare but could be the case if a third party library is injecting the
+ * markup.*
+ * 
+ * In the following example a new block of HTML containing a `ng-controller`
+ * directive is added to the end of the document body by JQuery. We then compile and link
+ * it into the current AngularJS scope.
+ * 
+ * <pre>
+ * var $div = $('<div ng-controller="MyCtrl">{{content.label}}</div>');
+ * $(document.body).append($div);
+ * 
+ * angular.element(document).injector().invoke(function($compile) {
+ *   var scope = angular.element($div).scope();
+ *   $compile($div)(scope);
+ * });
  * </pre>
  */
 
@@ -20309,11 +20331,6 @@ var styleDirective = valueFn({
 })(window, document);
 
 !angular.$$csp() && angular.element(document).find('head').prepend('<style type="text/css">@charset "UTF-8";[ng\\:cloak],[ng-cloak],[data-ng-cloak],[x-ng-cloak],.ng-cloak,.x-ng-cloak,.ng-hide{display:none !important;}ng\\:form{display:block;}.ng-animate-start{border-spacing:1px 1px;-ms-zoom:1.0001;}.ng-animate-active{border-spacing:0px 0px;-ms-zoom:1;}</style>');
-
-/**
- * Expose `angular`
- */
-module.exports = window.angular;
 
 /**
  * Expose `angular`
