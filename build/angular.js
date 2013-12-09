@@ -1,5 +1,5 @@
 /**
- * @license AngularJS v1.2.5-17faccf
+ * @license AngularJS v1.2.5-ea8b18c
  * (c) 2010-2014 Google, Inc. http://angularjs.org
  * License: MIT
  */
@@ -68,7 +68,7 @@ function minErr(module) {
       return match;
     });
 
-    message = message + '\nhttp://errors.angularjs.org/1.2.5-17faccf/' +
+    message = message + '\nhttp://errors.angularjs.org/1.2.5-ea8b18c/' +
       (module ? module + '/' : '') + code;
     for (i = 2; i < arguments.length; i++) {
       message = message + (i == 2 ? '?' : '&') + 'p' + (i-2) + '=' +
@@ -1828,7 +1828,7 @@ function setupModuleLoader(window) {
  * - `codeName` – `{string}` – Code name of the release, such as "jiggling-armfat".
  */
 var version = {
-  full: '1.2.5-17faccf',    // all of these placeholder strings will be replaced by grunt's
+  full: '1.2.5-ea8b18c',    // all of these placeholder strings will be replaced by grunt's
   major: 1,    // package task
   minor: 2,
   dot: 5,
