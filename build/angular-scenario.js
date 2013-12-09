@@ -9790,7 +9790,7 @@ if ( typeof module === "object" && module && typeof module.exports === "object" 
 })( window );
 
 /**
- * @license AngularJS v1.2.5-c99ffc2
+ * @license AngularJS v1.2.5-17faccf
  * (c) 2010-2014 Google, Inc. http://angularjs.org
  * License: MIT
  */
@@ -9860,7 +9860,7 @@ function minErr(module) {
       return match;
     });
 
-    message = message + '\nhttp://errors.angularjs.org/1.2.5-c99ffc2/' +
+    message = message + '\nhttp://errors.angularjs.org/1.2.5-17faccf/' +
       (module ? module + '/' : '') + code;
     for (i = 2; i < arguments.length; i++) {
       message = message + (i == 2 ? '?' : '&') + 'p' + (i-2) + '=' +
@@ -11620,7 +11620,7 @@ function setupModuleLoader(window) {
  * - `codeName` – `{string}` – Code name of the release, such as "jiggling-armfat".
  */
 var version = {
-  full: '1.2.5-c99ffc2',    // all of these placeholder strings will be replaced by grunt's
+  full: '1.2.5-17faccf',    // all of these placeholder strings will be replaced by grunt's
   major: 1,    // package task
   minor: 2,
   dot: 5,
@@ -20393,7 +20393,7 @@ function $ParseProvider() {
  *
  * # Differences between Kris Kowal's Q and $q
  *
- *  There are three main differences:
+ *  There are two main differences:
  *
  * - $q is integrated with the {@link ng.$rootScope.Scope} Scope model observation
  *   mechanism in angular, which means faster propagation of resolution or rejection into your
@@ -26676,7 +26676,6 @@ var CONSTANT_VALUE_REGEXP = /^(true|false|\d+)$/;
                      id="{{name}}"
                      name="favorite">
             </label>
-          </span>
           <div>You chose {{my.favorite}}</div>
         </form>
       </doc:source>
