@@ -9790,7 +9790,7 @@ if ( typeof module === "object" && module && typeof module.exports === "object" 
 })( window );
 
 /**
- * @license AngularJS v1.2.5-4da0484
+ * @license AngularJS v1.2.5-0de83aa
  * (c) 2010-2014 Google, Inc. http://angularjs.org
  * License: MIT
  */
@@ -9860,7 +9860,7 @@ function minErr(module) {
       return match;
     });
 
-    message = message + '\nhttp://errors.angularjs.org/1.2.5-4da0484/' +
+    message = message + '\nhttp://errors.angularjs.org/1.2.5-0de83aa/' +
       (module ? module + '/' : '') + code;
     for (i = 2; i < arguments.length; i++) {
       message = message + (i == 2 ? '?' : '&') + 'p' + (i-2) + '=' +
@@ -11559,6 +11559,7 @@ function setupModuleLoader(window) {
     ngHideDirective,
     ngIfDirective,
     ngIncludeDirective,
+    ngIncludeFillContentDirective,
     ngInitDirective,
     ngNonBindableDirective,
     ngPluralizeDirective,
@@ -11620,7 +11621,7 @@ function setupModuleLoader(window) {
  * - `codeName` – `{string}` – Code name of the release, such as "jiggling-armfat".
  */
 var version = {
-  full: '1.2.5-4da0484',    // all of these placeholder strings will be replaced by grunt's
+  full: '1.2.5-0de83aa',    // all of these placeholder strings will be replaced by grunt's
   major: 1,    // package task
   minor: 2,
   dot: 5,
@@ -11711,6 +11712,9 @@ function publishExternalAPI(angular){
             required: requiredDirective,
             ngRequired: requiredDirective,
             ngValue: ngValueDirective
+        }).
+        directive({
+          ngInclude: ngIncludeFillContentDirective
         }).
         directive(ngAttributeAliasDirectives).
         directive(ngEventDirectives);
@@ -28070,13 +28074,14 @@ var ngIfDirective = ['$animate', function($animate) {
  * @description
  * Emitted every time the ngInclude content is reloaded.
  */
-var ngIncludeDirective = ['$http', '$templateCache', '$anchorScroll', '$compile', '$animate', '$sce',
-                  function($http,   $templateCache,   $anchorScroll,   $compile,   $animate,   $sce) {
+var ngIncludeDirective = ['$http', '$templateCache', '$anchorScroll', '$animate', '$sce',
+                  function($http,   $templateCache,   $anchorScroll,   $animate,   $sce) {
   return {
     restrict: 'ECA',
     priority: 400,
     terminal: true,
     transclude: 'element',
+    controller: angular.noop,
     compile: function(element, attr) {
       var srcExp = attr.ngInclude || attr.src,
           onloadExp = attr.onload || '',
@@ -28110,6 +28115,7 @@ var ngIncludeDirective = ['$http', '$templateCache', '$anchorScroll', '$compile'
             $http.get(src, {cache: $templateCache}).success(function(response) {
               if (thisChangeId !== changeCounter) return;
               var newScope = scope.$new();
+              ctrl.template = response;
 
               // Note: This will also link all children of ng-include that were contained in the original
               // html. If that content contains controllers, ... they could pollute/change the scope.
@@ -28117,15 +28123,14 @@ var ngIncludeDirective = ['$http', '$templateCache', '$anchorScroll', '$compile'
               // Note: We can't remove them in the cloneAttchFn of $transclude as that
               // function is called before linking the content, which would apply child
               // directives to non existing elements.
-              var clone = $transclude(newScope, noop);
-              cleanupLastIncludeContent();
+              var clone = $transclude(newScope, function(clone) {
+                cleanupLastIncludeContent();
+                $animate.enter(clone, null, $element, afterAnimation);
+              });
 
               currentScope = newScope;
               currentElement = clone;
 
-              currentElement.html(response);
-              $animate.enter(currentElement, null, $element, afterAnimation);
-              $compile(currentElement.contents())(currentScope);
               currentScope.$emit('$includeContentLoaded');
               scope.$eval(onloadExp);
             }).error(function() {
@@ -28134,12 +28139,31 @@ var ngIncludeDirective = ['$http', '$templateCache', '$anchorScroll', '$compile'
             scope.$emit('$includeContentRequested');
           } else {
             cleanupLastIncludeContent();
+            ctrl.template = null;
           }
         });
       };
     }
   };
 }];
+
+// This directive is called during the $transclude call of the first `ngInclude` directive.
+// It will replace and compile the content of the element with the loaded template.
+// We need this directive so that the element content is already filled when
+// the link function of another directive on the same element as ngInclude
+// is called.
+var ngIncludeFillContentDirective = ['$compile',
+  function($compile) {
+    return {
+      restrict: 'ECA',
+      priority: -400,
+      require: 'ngInclude',
+      link: function(scope, $element, $attr, ctrl) {
+        $element.html(ctrl.template);
+        $compile($element.contents())(scope);
+      }
+    };
+  }];
 
 /**
  * @ngdoc directive
