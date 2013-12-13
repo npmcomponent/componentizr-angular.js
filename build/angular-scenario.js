@@ -9790,7 +9790,7 @@ if ( typeof module === "object" && module && typeof module.exports === "object" 
 })( window );
 
 /**
- * @license AngularJS v1.2.5-3ac3680
+ * @license AngularJS v1.2.5-4da0484
  * (c) 2010-2014 Google, Inc. http://angularjs.org
  * License: MIT
  */
@@ -9860,7 +9860,7 @@ function minErr(module) {
       return match;
     });
 
-    message = message + '\nhttp://errors.angularjs.org/1.2.5-3ac3680/' +
+    message = message + '\nhttp://errors.angularjs.org/1.2.5-4da0484/' +
       (module ? module + '/' : '') + code;
     for (i = 2; i < arguments.length; i++) {
       message = message + (i == 2 ? '?' : '&') + 'p' + (i-2) + '=' +
@@ -11620,7 +11620,7 @@ function setupModuleLoader(window) {
  * - `codeName` – `{string}` – Code name of the release, such as "jiggling-armfat".
  */
 var version = {
-  full: '1.2.5-3ac3680',    // all of these placeholder strings will be replaced by grunt's
+  full: '1.2.5-4da0484',    // all of these placeholder strings will be replaced by grunt's
   major: 1,    // package task
   minor: 2,
   dot: 5,
@@ -15831,7 +15831,7 @@ function $CompileProvider($provide, $$sanitizeUriProvider) {
                 optional = (match[2] == '?'),
                 mode = match[1], // @, =, or &
                 lastValue,
-                parentGet, parentSet;
+                parentGet, parentSet, compare;
 
             isolateScope.$$isolateBindings[scopeName] = mode + attrName;
 
@@ -15854,6 +15854,11 @@ function $CompileProvider($provide, $$sanitizeUriProvider) {
                   return;
                 }
                 parentGet = $parse(attrs[attrName]);
+                if (parentGet.literal) {
+                  compare = equals;
+                } else {
+                  compare = function(a,b) { return a === b; };
+                }
                 parentSet = parentGet.assign || function() {
                   // reset the change, or we will throw this exception on every $digest
                   lastValue = isolateScope[scopeName] = parentGet(scope);
@@ -15864,10 +15869,9 @@ function $CompileProvider($provide, $$sanitizeUriProvider) {
                 lastValue = isolateScope[scopeName] = parentGet(scope);
                 isolateScope.$watch(function parentValueWatch() {
                   var parentValue = parentGet(scope);
-
-                  if (parentValue !== isolateScope[scopeName]) {
+                  if (!compare(parentValue, isolateScope[scopeName])) {
                     // we are out of sync and need to copy
-                    if (parentValue !== lastValue) {
+                    if (!compare(parentValue, lastValue)) {
                       // parent changed and it has precedence
                       isolateScope[scopeName] = parentValue;
                     } else {
@@ -15876,7 +15880,7 @@ function $CompileProvider($provide, $$sanitizeUriProvider) {
                     }
                   }
                   return lastValue = parentValue;
-                });
+                }, null, parentGet.literal);
                 break;
 
               case '&':
