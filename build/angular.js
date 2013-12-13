@@ -1,5 +1,5 @@
 /**
- * @license AngularJS v1.2.5-9e2ab50
+ * @license AngularJS v1.2.5-3d4bf9a
  * (c) 2010-2014 Google, Inc. http://angularjs.org
  * License: MIT
  */
@@ -68,7 +68,7 @@ function minErr(module) {
       return match;
     });
 
-    message = message + '\nhttp://errors.angularjs.org/1.2.5-9e2ab50/' +
+    message = message + '\nhttp://errors.angularjs.org/1.2.5-3d4bf9a/' +
       (module ? module + '/' : '') + code;
     for (i = 2; i < arguments.length; i++) {
       message = message + (i == 2 ? '?' : '&') + 'p' + (i-2) + '=' +
@@ -472,7 +472,7 @@ function valueFn(value) {return function() {return value;};}
  * @param {*} value Reference to check.
  * @returns {boolean} True if `value` is undefined.
  */
-function isUndefined(value){return typeof value == 'undefined';}
+function isUndefined(value){return typeof value === 'undefined';}
 
 
 /**
@@ -486,7 +486,7 @@ function isUndefined(value){return typeof value == 'undefined';}
  * @param {*} value Reference to check.
  * @returns {boolean} True if `value` is defined.
  */
-function isDefined(value){return typeof value != 'undefined';}
+function isDefined(value){return typeof value !== 'undefined';}
 
 
 /**
@@ -501,7 +501,7 @@ function isDefined(value){return typeof value != 'undefined';}
  * @param {*} value Reference to check.
  * @returns {boolean} True if `value` is an `Object` but not `null`.
  */
-function isObject(value){return value != null && typeof value == 'object';}
+function isObject(value){return value != null && typeof value === 'object';}
 
 
 /**
@@ -515,7 +515,7 @@ function isObject(value){return value != null && typeof value == 'object';}
  * @param {*} value Reference to check.
  * @returns {boolean} True if `value` is a `String`.
  */
-function isString(value){return typeof value == 'string';}
+function isString(value){return typeof value === 'string';}
 
 
 /**
@@ -529,7 +529,7 @@ function isString(value){return typeof value == 'string';}
  * @param {*} value Reference to check.
  * @returns {boolean} True if `value` is a `Number`.
  */
-function isNumber(value){return typeof value == 'number';}
+function isNumber(value){return typeof value === 'number';}
 
 
 /**
@@ -544,7 +544,7 @@ function isNumber(value){return typeof value == 'number';}
  * @returns {boolean} True if `value` is a `Date`.
  */
 function isDate(value){
-  return toString.apply(value) == '[object Date]';
+  return toString.call(value) === '[object Date]';
 }
 
 
@@ -560,7 +560,7 @@ function isDate(value){
  * @returns {boolean} True if `value` is an `Array`.
  */
 function isArray(value) {
-  return toString.apply(value) == '[object Array]';
+  return toString.call(value) === '[object Array]';
 }
 
 
@@ -575,7 +575,7 @@ function isArray(value) {
  * @param {*} value Reference to check.
  * @returns {boolean} True if `value` is a `Function`.
  */
-function isFunction(value){return typeof value == 'function';}
+function isFunction(value){return typeof value === 'function';}
 
 
 /**
@@ -586,7 +586,7 @@ function isFunction(value){return typeof value == 'function';}
  * @returns {boolean} True if `value` is a `RegExp`.
  */
 function isRegExp(value) {
-  return toString.apply(value) == '[object RegExp]';
+  return toString.call(value) === '[object RegExp]';
 }
 
 
@@ -608,12 +608,12 @@ function isScope(obj) {
 
 
 function isFile(obj) {
-  return toString.apply(obj) === '[object File]';
+  return toString.call(obj) === '[object File]';
 }
 
 
 function isBoolean(value) {
-  return typeof value == 'boolean';
+  return typeof value === 'boolean';
 }
 
 
@@ -717,7 +717,7 @@ function includes(array, obj) {
 function indexOf(array, obj) {
   if (array.indexOf) return array.indexOf(obj);
 
-  for ( var i = 0; i < array.length; i++) {
+  for (var i = 0; i < array.length; i++) {
     if (obj === array[i]) return i;
   }
   return -1;
@@ -1829,7 +1829,7 @@ function setupModuleLoader(window) {
  * - `codeName` – `{string}` – Code name of the release, such as "jiggling-armfat".
  */
 var version = {
-  full: '1.2.5-9e2ab50',    // all of these placeholder strings will be replaced by grunt's
+  full: '1.2.5-3d4bf9a',    // all of these placeholder strings will be replaced by grunt's
   major: 1,    // package task
   minor: 2,
   dot: 5,
@@ -14689,14 +14689,16 @@ var htmlAnchorDirective = valueFn({
       element.append(document.createComment('IE fix'));
     }
 
-    return function(scope, element) {
-      element.on('click', function(event){
-        // if we have no href url, then don't navigate anywhere.
-        if (!element.attr('href')) {
-          event.preventDefault();
-        }
-      });
-    };
+    if (!attr.href && !attr.name) {
+      return function(scope, element) {
+        element.on('click', function(event){
+          // if we have no href url, then don't navigate anywhere.
+          if (!element.attr('href')) {
+            event.preventDefault();
+          }
+        });
+      };
+    }
   }
 });
 
