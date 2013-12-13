@@ -1,5 +1,5 @@
 /**
- * @license AngularJS v1.2.6-5680c6b
+ * @license AngularJS v1.2.6-build.local+sha.7d8716a
  * (c) 2010-2014 Google, Inc. http://angularjs.org
  * License: MIT
  */
@@ -68,7 +68,7 @@ function minErr(module) {
       return match;
     });
 
-    message = message + '\nhttp://errors.angularjs.org/1.2.6-5680c6b/' +
+    message = message + '\nhttp://errors.angularjs.org/1.2.6-build.local+sha.7d8716a/' +
       (module ? module + '/' : '') + code;
     for (i = 2; i < arguments.length; i++) {
       message = message + (i == 2 ? '?' : '&') + 'p' + (i-2) + '=' +
@@ -1829,7 +1829,7 @@ function setupModuleLoader(window) {
  * - `codeName` – `{string}` – Code name of the release, such as "jiggling-armfat".
  */
 var version = {
-  full: '1.2.6-5680c6b',    // all of these placeholder strings will be replaced by grunt's
+  full: '1.2.6-build.local+sha.7d8716a',    // all of these placeholder strings will be replaced by grunt's
   major: 1,    // package task
   minor: 2,
   dot: 6,
