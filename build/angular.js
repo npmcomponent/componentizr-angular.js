@@ -1,5 +1,5 @@
 /**
- * @license AngularJS v1.2.6-build.local+sha.8402b4a
+ * @license AngularJS v1.2.6-build.local+sha.6a93955
  * (c) 2010-2014 Google, Inc. http://angularjs.org
  * License: MIT
  */
@@ -68,7 +68,7 @@ function minErr(module) {
       return match;
     });
 
-    message = message + '\nhttp://errors.angularjs.org/1.2.6-build.local+sha.8402b4a/' +
+    message = message + '\nhttp://errors.angularjs.org/1.2.6-build.local+sha.6a93955/' +
       (module ? module + '/' : '') + code;
     for (i = 2; i < arguments.length; i++) {
       message = message + (i == 2 ? '?' : '&') + 'p' + (i-2) + '=' +
@@ -1831,7 +1831,7 @@ function setupModuleLoader(window) {
  * - `codeName` – `{string}` – Code name of the release, such as "jiggling-armfat".
  */
 var version = {
-  full: '1.2.6-build.local+sha.8402b4a',    // all of these placeholder strings will be replaced by grunt's
+  full: '1.2.6-build.local+sha.6a93955',    // all of these placeholder strings will be replaced by grunt's
   major: 1,    // package task
   minor: 2,
   dot: 6,
@@ -3394,15 +3394,15 @@ function annotate(fn) {
  * {@link AUTO.$provide#methods_service $provide.service(class)} that is defined as a CoffeeScript class.
  * <pre>
  *   class Ping
- *     constructor: (@$http)->
- *     send: ()=>
+ *     constructor: (@$http) ->
+ *     send: () =>
  *       @$http.get('/ping')
  *
  *   $provide.service('ping', ['$http', Ping])
  * </pre>
  * You would then inject and use this service like this:
  * <pre>
- *   someModule.controller 'Ctrl', ['ping', (ping)->
+ *   someModule.controller 'Ctrl', ['ping', (ping) ->
  *     ping.send()
  *   ]
  * </pre>
@@ -8251,6 +8251,14 @@ function $IntervalProvider() {
       * In tests you can use {@link ngMock.$interval#methods_flush `$interval.flush(millis)`} to
       * move forward by `millis` milliseconds and trigger any functions scheduled to run in that
       * time.
+      * 
+      * <div class="alert alert-warning">
+      * **Note**: Intervals created by this service must be explicitly destroyed when you are finished
+      * with them.  In particular they are not automatically destroyed when a controller's scope or a
+      * directive's element are destroyed.
+      * You should take this into consideration and make sure to always cancel the interval at the
+      * appropriate moment.  See the example below for more details on how and when to do this.
+      * </div>
       *
       * @param {function()} fn A function that should be called repeatedly.
       * @param {number} delay Number of milliseconds between each function call.
@@ -8279,20 +8287,27 @@ function $IntervalProvider() {
                       $scope.blood_1 = $scope.blood_1 - 3;
                       $scope.blood_2 = $scope.blood_2 - 4;
                   } else {
-                      $interval.cancel(stop);
+                      $scope.stopFight();
                   }
                 }, 100);
               };
 
               $scope.stopFight = function() {
-                $interval.cancel(stop);
-                stop = undefined;
+                if (angular.isDefined(stop)) {
+                  $interval.cancel(stop);
+                  stop = undefined;
+                }
               };
 
               $scope.resetFight = function() {
                 $scope.blood_1 = 100;
                 $scope.blood_2 = 120;
               }
+
+              $scope.$on('$destroy', function() {
+                // Make sure that the interval is destroyed too
+                $scope.stopFight();
+              });
             }
 
             angular.module('time', [])
@@ -14763,6 +14778,7 @@ var htmlAnchorDirective = valueFn({
  * @ngdoc directive
  * @name ng.directive:ngHref
  * @restrict A
+ * @priority 99
  *
  * @description
  * Using Angular markup like `{{hash}}` in an href attribute will
@@ -14846,6 +14862,7 @@ var htmlAnchorDirective = valueFn({
  * @ngdoc directive
  * @name ng.directive:ngSrc
  * @restrict A
+ * @priority 99
  *
  * @description
  * Using Angular markup like `{{hash}}` in a `src` attribute doesn't
@@ -14871,6 +14888,7 @@ var htmlAnchorDirective = valueFn({
  * @ngdoc directive
  * @name ng.directive:ngSrcset
  * @restrict A
+ * @priority 99
  *
  * @description
  * Using Angular markup like `{{hash}}` in a `srcset` attribute doesn't
@@ -14896,6 +14914,7 @@ var htmlAnchorDirective = valueFn({
  * @ngdoc directive
  * @name ng.directive:ngDisabled
  * @restrict A
+ * @priority 100
  *
  * @description
  *
@@ -14939,6 +14958,7 @@ var htmlAnchorDirective = valueFn({
  * @ngdoc directive
  * @name ng.directive:ngChecked
  * @restrict A
+ * @priority 100
  *
  * @description
  * The HTML specification does not require browsers to preserve the values of boolean attributes
@@ -14973,6 +14993,7 @@ var htmlAnchorDirective = valueFn({
  * @ngdoc directive
  * @name ng.directive:ngReadonly
  * @restrict A
+ * @priority 100
  *
  * @description
  * The HTML specification does not require browsers to preserve the values of boolean attributes
@@ -14982,7 +15003,6 @@ var htmlAnchorDirective = valueFn({
  * The `ngReadonly` directive solves this problem for the `readonly` attribute.
  * This complementary directive is not removed by the browser and so provides
  * a permanent reliable place to store the binding information.
-
  * @example
     <doc:example>
       <doc:source>
@@ -15008,6 +15028,7 @@ var htmlAnchorDirective = valueFn({
  * @ngdoc directive
  * @name ng.directive:ngSelected
  * @restrict A
+ * @priority 100
  *
  * @description
  * The HTML specification does not require browsers to preserve the values of boolean attributes
@@ -15017,6 +15038,7 @@ var htmlAnchorDirective = valueFn({
  * The `ngSelected` directive solves this problem for the `selected` atttribute.
  * This complementary directive is not removed by the browser and so provides
  * a permanent reliable place to store the binding information.
+ * 
  * @example
     <doc:example>
       <doc:source>
@@ -15044,6 +15066,7 @@ var htmlAnchorDirective = valueFn({
  * @ngdoc directive
  * @name ng.directive:ngOpen
  * @restrict A
+ * @priority 100
  *
  * @description
  * The HTML specification does not require browsers to preserve the values of boolean attributes
@@ -15053,8 +15076,6 @@ var htmlAnchorDirective = valueFn({
  * The `ngOpen` directive solves this problem for the `open` attribute.
  * This complementary directive is not removed by the browser and so provides
  * a permanent reliable place to store the binding information.
-
- *
  * @example
      <doc:example>
        <doc:source>
@@ -17474,7 +17495,7 @@ var ngClassEvenDirective = classDirective('Even', 1);
  *
  * Legacy browsers, like IE7, do not provide attribute selector support (added in CSS 2.1) so they
  * cannot match the `[ng\:cloak]` selector. To work around this limitation, you must add the css
- * class `ngCloak` in addition to the `ngCloak` directive as shown in the example below.
+ * class `ng-cloak` in addition to the `ngCloak` directive as shown in the example below.
  *
  * @element ANY
  *
@@ -17785,7 +17806,14 @@ forEach(
  * a dblclick. (The Event object is available as `$event`)
  *
  * @example
- * See {@link ng.directive:ngClick ngClick}
+   <doc:example>
+     <doc:source>
+      <button ng-dblclick="count = count + 1" ng-init="count=0">
+        Increment (on double click)
+      </button>
+      count: {{count}}
+     </doc:source>
+   </doc:example>
  */
 
 
@@ -17801,7 +17829,14 @@ forEach(
  * mousedown. (Event object is available as `$event`)
  *
  * @example
- * See {@link ng.directive:ngClick ngClick}
+   <doc:example>
+     <doc:source>
+      <button ng-mousedown="count = count + 1" ng-init="count=0">
+        Increment (on mouse down)
+      </button>
+      count: {{count}}
+     </doc:source>
+   </doc:example>
  */
 
 
@@ -17817,7 +17852,14 @@ forEach(
  * mouseup. (Event object is available as `$event`)
  *
  * @example
- * See {@link ng.directive:ngClick ngClick}
+   <doc:example>
+     <doc:source>
+      <button ng-mouseup="count = count + 1" ng-init="count=0">
+        Increment (on mouse up)
+      </button>
+      count: {{count}}
+     </doc:source>
+   </doc:example>
  */
 
 /**
@@ -17832,7 +17874,14 @@ forEach(
  * mouseover. (Event object is available as `$event`)
  *
  * @example
- * See {@link ng.directive:ngClick ngClick}
+   <doc:example>
+     <doc:source>
+      <button ng-mouseover="count = count + 1" ng-init="count=0">
+        Increment (when mouse is over)
+      </button>
+      count: {{count}}
+     </doc:source>
+   </doc:example>
  */
 
 
@@ -17848,7 +17897,14 @@ forEach(
  * mouseenter. (Event object is available as `$event`)
  *
  * @example
- * See {@link ng.directive:ngClick ngClick}
+   <doc:example>
+     <doc:source>
+      <button ng-mouseenter="count = count + 1" ng-init="count=0">
+        Increment (when mouse enters)
+      </button>
+      count: {{count}}
+     </doc:source>
+   </doc:example>
  */
 
 
@@ -17864,7 +17920,14 @@ forEach(
  * mouseleave. (Event object is available as `$event`)
  *
  * @example
- * See {@link ng.directive:ngClick ngClick}
+   <doc:example>
+     <doc:source>
+      <button ng-mouseleave="count = count + 1" ng-init="count=0">
+        Increment (when mouse leaves)
+      </button>
+      count: {{count}}
+     </doc:source>
+   </doc:example>
  */
 
 
@@ -17880,7 +17943,14 @@ forEach(
  * mousemove. (Event object is available as `$event`)
  *
  * @example
- * See {@link ng.directive:ngClick ngClick}
+   <doc:example>
+     <doc:source>
+      <button ng-mousemove="count = count + 1" ng-init="count=0">
+        Increment (when mouse moves)
+      </button>
+      count: {{count}}
+     </doc:source>
+   </doc:example>
  */
 
 
@@ -17896,7 +17966,12 @@ forEach(
  * keydown. (Event object is available as `$event` and can be interrogated for keyCode, altKey, etc.)
  *
  * @example
- * See {@link ng.directive:ngClick ngClick}
+   <doc:example>
+     <doc:source>
+      <input ng-keydown="count = count + 1" ng-init="count=0">
+      key down count: {{count}}
+     </doc:source>
+   </doc:example>
  */
 
 
@@ -17912,7 +17987,12 @@ forEach(
  * keyup. (Event object is available as `$event` and can be interrogated for keyCode, altKey, etc.)
  *
  * @example
- * See {@link ng.directive:ngClick ngClick}
+   <doc:example>
+     <doc:source>
+      <input ng-keyup="count = count + 1" ng-init="count=0">
+      key up count: {{count}}
+     </doc:source>
+   </doc:example>
  */
 
 
@@ -17928,7 +18008,12 @@ forEach(
  * keypress. (Event object is available as `$event` and can be interrogated for keyCode, altKey, etc.)
  *
  * @example
- * See {@link ng.directive:ngClick ngClick}
+   <doc:example>
+     <doc:source>
+      <input ng-keypress="count = count + 1" ng-init="count=0">
+      key press count: {{count}}
+     </doc:source>
+   </doc:example>
  */
 
 
@@ -18027,7 +18112,12 @@ forEach(
  * copy. (Event object is available as `$event`)
  *
  * @example
- * See {@link ng.directive:ngClick ngClick}
+   <doc:example>
+     <doc:source>
+      <input ng-copy="copied=true" ng-init="copied=false; value='copy me'" ng-model="value">
+      copied: {{copied}}
+     </doc:source>
+   </doc:example>
  */
 
 /**
@@ -18042,7 +18132,12 @@ forEach(
  * cut. (Event object is available as `$event`)
  *
  * @example
- * See {@link ng.directive:ngClick ngClick}
+   <doc:example>
+     <doc:source>
+      <input ng-cut="cut=true" ng-init="cut=false; value='cut me'" ng-model="value">
+      cut: {{cut}}
+     </doc:source>
+   </doc:example>
  */
 
 /**
@@ -18057,7 +18152,12 @@ forEach(
  * paste. (Event object is available as `$event`)
  *
  * @example
- * See {@link ng.directive:ngClick ngClick}
+   <doc:example>
+     <doc:source>
+      <input ng-paste="paste=true" ng-init="paste=false" placeholder='paste here'>
+      pasted: {{paste}}
+     </doc:source>
+   </doc:example>
  */
 
 /**
