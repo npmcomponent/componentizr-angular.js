@@ -1,5 +1,5 @@
 /**
- * @license AngularJS v1.2.6-build.local+sha.8ad9493
+ * @license AngularJS v1.2.6-build.local+sha.0709533
  * (c) 2010-2014 Google, Inc. http://angularjs.org
  * License: MIT
  */
@@ -68,7 +68,7 @@ function minErr(module) {
       return match;
     });
 
-    message = message + '\nhttp://errors.angularjs.org/1.2.6-build.local+sha.8ad9493/' +
+    message = message + '\nhttp://errors.angularjs.org/1.2.6-build.local+sha.0709533/' +
       (module ? module + '/' : '') + code;
     for (i = 2; i < arguments.length; i++) {
       message = message + (i == 2 ? '?' : '&') + 'p' + (i-2) + '=' +
@@ -292,7 +292,9 @@ function forEach(obj, iterator, context) {
   if (obj) {
     if (isFunction(obj)){
       for (key in obj) {
-        if (key != 'prototype' && key != 'length' && key != 'name' && obj.hasOwnProperty(key)) {
+        // Need to check if hasOwnProperty exists,
+        // as on IE8 the result of querySelectorAll is an object without a hasOwnProperty function
+        if (key != 'prototype' && key != 'length' && key != 'name' && (!obj.hasOwnProperty || obj.hasOwnProperty(key))) {
           iterator.call(context, obj[key], key);
         }
       }
@@ -1829,7 +1831,7 @@ function setupModuleLoader(window) {
  * - `codeName` – `{string}` – Code name of the release, such as "jiggling-armfat".
  */
 var version = {
-  full: '1.2.6-build.local+sha.8ad9493',    // all of these placeholder strings will be replaced by grunt's
+  full: '1.2.6-build.local+sha.0709533',    // all of these placeholder strings will be replaced by grunt's
   major: 1,    // package task
   minor: 2,
   dot: 6,
@@ -9314,9 +9316,16 @@ function $LogProvider(){
 
     function consoleLog(type) {
       var console = $window.console || {},
-          logFn = console[type] || console.log || noop;
+          logFn = console[type] || console.log || noop,
+          hasApply = false;
 
-      if (logFn.apply) {
+      // Note: reading logFn.apply throws an error in IE11 in IE8 document mode.
+      // The reason behind this is that console.log has type "object" in IE8...
+      try {
+        hasApply = !! logFn.apply;
+      } catch (e) {}
+
+      if (hasApply) {
         return function() {
           var args = [];
           forEach(arguments, function(arg) {
