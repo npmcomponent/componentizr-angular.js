@@ -1,5 +1,5 @@
 /**
- * @license AngularJS v1.2.7-build.local+sha.9c7923e
+ * @license AngularJS v1.2.7-build.local+sha.76e397e
  * (c) 2010-2014 Google, Inc. http://angularjs.org
  * License: MIT
  */
@@ -68,7 +68,7 @@ function minErr(module) {
       return match;
     });
 
-    message = message + '\nhttp://errors.angularjs.org/1.2.7-build.local+sha.9c7923e/' +
+    message = message + '\nhttp://errors.angularjs.org/1.2.7-build.local+sha.76e397e/' +
       (module ? module + '/' : '') + code;
     for (i = 2; i < arguments.length; i++) {
       message = message + (i == 2 ? '?' : '&') + 'p' + (i-2) + '=' +
@@ -1831,7 +1831,7 @@ function setupModuleLoader(window) {
  * - `codeName` – `{string}` – Code name of the release, such as "jiggling-armfat".
  */
 var version = {
-  full: '1.2.7-build.local+sha.9c7923e',    // all of these placeholder strings will be replaced by grunt's
+  full: '1.2.7-build.local+sha.76e397e',    // all of these placeholder strings will be replaced by grunt's
   major: 1,    // package task
   minor: 2,
   dot: 7,
@@ -4197,8 +4197,9 @@ function Browser(window, document, $log, $sniffer) {
    * @param {boolean=} replace Should new url replace current history record ?
    */
   self.url = function(url, replace) {
-    // Android Browser BFCache causes location reference to become stale.
+    // Android Browser BFCache causes location, history reference to become stale.
     if (location !== window.location) location = window.location;
+    if (history !== window.history) history = window.history;
 
     // setter
     if (url) {
@@ -15994,7 +15995,7 @@ function textInputType(scope, element, attr, ctrl, $sniffer, $browser) {
     });
   }
 
-  var listener = function() {
+  var listener = function(ev) {
     if (composing) return;
     var value = element.val();
 
@@ -16006,9 +16007,17 @@ function textInputType(scope, element, attr, ctrl, $sniffer, $browser) {
     }
 
     if (ctrl.$viewValue !== value) {
-      scope.$apply(function() {
+      // If an event was performed natively, jQuery sets the isTrigger property.
+      // When triggering event manually, the field is not present. Manually
+      // triggered events are performed synchronously which causes the "$digest
+      // already in progress" error.
+      if (ev && ev.isTrigger) {
         ctrl.$setViewValue(value);
-      });
+      } else {
+        scope.$apply(function() {
+          ctrl.$setViewValue(value);
+        });
+      }
     }
   };
 
