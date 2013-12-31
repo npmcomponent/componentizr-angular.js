@@ -1,5 +1,5 @@
 /**
- * @license AngularJS v1.2.7-build.local+sha.9e835d0
+ * @license AngularJS v1.2.7-build.local+sha.7a7c57a
  * (c) 2010-2014 Google, Inc. http://angularjs.org
  * License: MIT
  */
@@ -68,7 +68,7 @@ function minErr(module) {
       return match;
     });
 
-    message = message + '\nhttp://errors.angularjs.org/1.2.7-build.local+sha.9e835d0/' +
+    message = message + '\nhttp://errors.angularjs.org/1.2.7-build.local+sha.7a7c57a/' +
       (module ? module + '/' : '') + code;
     for (i = 2; i < arguments.length; i++) {
       message = message + (i == 2 ? '?' : '&') + 'p' + (i-2) + '=' +
@@ -1831,7 +1831,7 @@ function setupModuleLoader(window) {
  * - `codeName` – `{string}` – Code name of the release, such as "jiggling-armfat".
  */
 var version = {
-  full: '1.2.7-build.local+sha.9e835d0',    // all of these placeholder strings will be replaced by grunt's
+  full: '1.2.7-build.local+sha.7a7c57a',    // all of these placeholder strings will be replaced by grunt's
   major: 1,    // package task
   minor: 2,
   dot: 7,
@@ -3663,6 +3663,11 @@ function createInjector(modulesToLoad) {
           path.unshift(serviceName);
           cache[serviceName] = INSTANTIATING;
           return cache[serviceName] = factory(serviceName);
+        } catch (err) {
+          if (cache[serviceName] === INSTANTIATING) {
+            delete cache[serviceName];
+          }
+          throw err;
         } finally {
           path.shift();
         }
@@ -15995,7 +16000,7 @@ function textInputType(scope, element, attr, ctrl, $sniffer, $browser) {
     });
   }
 
-  var listener = function(ev) {
+  var listener = function() {
     if (composing) return;
     var value = element.val();
 
@@ -16007,11 +16012,7 @@ function textInputType(scope, element, attr, ctrl, $sniffer, $browser) {
     }
 
     if (ctrl.$viewValue !== value) {
-      // If an event was performed natively, jQuery sets the isTrigger property.
-      // When triggering event manually, the field is not present. Manually
-      // triggered events are performed synchronously which causes the "$digest
-      // already in progress" error.
-      if (ev && ev.isTrigger) {
+      if (scope.$$phase) {
         ctrl.$setViewValue(value);
       } else {
         scope.$apply(function() {
