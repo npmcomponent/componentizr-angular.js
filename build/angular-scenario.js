@@ -9790,7 +9790,7 @@ if ( typeof module === "object" && module && typeof module.exports === "object" 
 })( window );
 
 /**
- * @license AngularJS v1.2.7-build.local+sha.658d4b2
+ * @license AngularJS v1.2.7-build.local+sha.4670d5e
  * (c) 2010-2014 Google, Inc. http://angularjs.org
  * License: MIT
  */
@@ -9860,7 +9860,7 @@ function minErr(module) {
       return match;
     });
 
-    message = message + '\nhttp://errors.angularjs.org/1.2.7-build.local+sha.658d4b2/' +
+    message = message + '\nhttp://errors.angularjs.org/1.2.7-build.local+sha.4670d5e/' +
       (module ? module + '/' : '') + code;
     for (i = 2; i < arguments.length; i++) {
       message = message + (i == 2 ? '?' : '&') + 'p' + (i-2) + '=' +
@@ -11625,7 +11625,7 @@ function setupModuleLoader(window) {
  * - `codeName` – `{string}` – Code name of the release, such as "jiggling-armfat".
  */
 var version = {
-  full: '1.2.7-build.local+sha.658d4b2',    // all of these placeholder strings will be replaced by grunt's
+  full: '1.2.7-build.local+sha.4670d5e',    // all of these placeholder strings will be replaced by grunt's
   major: 1,    // package task
   minor: 2,
   dot: 7,
@@ -23698,21 +23698,21 @@ function $FilterProvider($provide) {
  *     property of the object. That's equivalent to the simple substring match with a `string`
  *     as described above.
  *
- *   - `function`: A predicate function can be used to write arbitrary filters. The function is
+ *   - `function(value)`: A predicate function can be used to write arbitrary filters. The function is
  *     called for each element of `array`. The final result is an array of those elements that
  *     the predicate returned true for.
  *
- * @param {function(expected, actual)|true|undefined} comparator Comparator which is used in
+ * @param {function(actual, expected)|true|undefined} comparator Comparator which is used in
  *     determining if the expected value (from the filter expression) and actual value (from
  *     the object in the array) should be considered a match.
  *
  *   Can be one of:
  *
- *     - `function(expected, actual)`:
+ *     - `function(actual, expected)`:
  *       The function will be given the object value and the predicate value to compare and
  *       should return true if the item should be included in filtered result.
  *
- *     - `true`: A shorthand for `function(expected, actual) { return angular.equals(expected, actual)}`.
+ *     - `true`: A shorthand for `function(actual, expected) { return angular.equals(expected, actual)}`.
  *       this is essentially strict comparison of expected and actual.
  *
  *     - `false|undefined`: A short hand for a function which will look for a substring match in case
