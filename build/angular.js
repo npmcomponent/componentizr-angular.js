@@ -1,5 +1,5 @@
 /**
- * @license AngularJS v1.2.7-build.local+sha.6bb9f28
+ * @license AngularJS v1.2.7-build.local+sha.955bf70
  * (c) 2010-2014 Google, Inc. http://angularjs.org
  * License: MIT
  */
@@ -68,7 +68,7 @@ function minErr(module) {
       return match;
     });
 
-    message = message + '\nhttp://errors.angularjs.org/1.2.7-build.local+sha.6bb9f28/' +
+    message = message + '\nhttp://errors.angularjs.org/1.2.7-build.local+sha.955bf70/' +
       (module ? module + '/' : '') + code;
     for (i = 2; i < arguments.length; i++) {
       message = message + (i == 2 ? '?' : '&') + 'p' + (i-2) + '=' +
@@ -1831,7 +1831,7 @@ function setupModuleLoader(window) {
  * - `codeName` – `{string}` – Code name of the release, such as "jiggling-armfat".
  */
 var version = {
-  full: '1.2.7-build.local+sha.6bb9f28',    // all of these placeholder strings will be replaced by grunt's
+  full: '1.2.7-build.local+sha.955bf70',    // all of these placeholder strings will be replaced by grunt's
   major: 1,    // package task
   minor: 2,
   dot: 7,
@@ -4256,7 +4256,7 @@ function Browser(window, document, $log, $sniffer) {
    * @description
    * Register callback function that will be called, when url changes.
    *
-   * It's only called when the url is changed by outside of angular:
+   * It's only called when the url is changed from outside of angular:
    * - user types different url into address bar
    * - user clicks on history (forward/back) button
    * - user clicks on a link
@@ -4298,7 +4298,7 @@ function Browser(window, document, $log, $sniffer) {
   /**
    * @name ng.$browser#baseHref
    * @methodOf ng.$browser
-   * 
+   *
    * @description
    * Returns current <base href>
    * (always relative - without domain)
@@ -4329,13 +4329,13 @@ function Browser(window, document, $log, $sniffer) {
    * It is not meant to be used directly, use the $cookie service instead.
    *
    * The return values vary depending on the arguments that the method was called with as follows:
-   * 
+   *
    * - cookies() -> hash of all cookies, this is NOT a copy of the internal state, so do not modify
    *   it
    * - cookies(name, value) -> set name to value, if value is undefined delete the cookie
    * - cookies(name) -> the same as (name, undefined) == DELETES (no one calls it right now that
    *   way)
-   * 
+   *
    * @returns {Object} Hash of all cookies (if called without any parameter)
    */
   self.cookies = function(name, value) {
@@ -7871,13 +7871,13 @@ function $HttpProvider() {
   }];
 }
 
-var XHR = window.XMLHttpRequest || function() {
+function createXhr(method) {
+  // IE8 doesn't support PATCH method, but the ActiveX object does
   /* global ActiveXObject */
-  try { return new ActiveXObject("Msxml2.XMLHTTP.6.0"); } catch (e1) {}
-  try { return new ActiveXObject("Msxml2.XMLHTTP.3.0"); } catch (e2) {}
-  try { return new ActiveXObject("Msxml2.XMLHTTP"); } catch (e3) {}
-  throw minErr('$httpBackend')('noxhr', "This browser does not support XMLHttpRequest.");
-};
+  return (msie <= 8 && lowercase(method) === 'patch')
+      ? new ActiveXObject('Microsoft.XMLHTTP')
+      : new window.XMLHttpRequest();
+}
 
 
 /**
@@ -7899,11 +7899,11 @@ var XHR = window.XMLHttpRequest || function() {
  */
 function $HttpBackendProvider() {
   this.$get = ['$browser', '$window', '$document', function($browser, $window, $document) {
-    return createHttpBackend($browser, XHR, $browser.defer, $window.angular.callbacks, $document[0]);
+    return createHttpBackend($browser, createXhr, $browser.defer, $window.angular.callbacks, $document[0]);
   }];
 }
 
-function createHttpBackend($browser, XHR, $browserDefer, callbacks, rawDocument) {
+function createHttpBackend($browser, createXhr, $browserDefer, callbacks, rawDocument) {
   var ABORTED = -1;
 
   // TODO(vojta): fix the signature
@@ -7928,7 +7928,9 @@ function createHttpBackend($browser, XHR, $browserDefer, callbacks, rawDocument)
         delete callbacks[callbackId];
       });
     } else {
-      var xhr = new XHR();
+
+      var xhr = createXhr(method);
+
       xhr.open(method, url, true);
       forEach(headers, function(value, key) {
         if (isDefined(value)) {
@@ -7944,7 +7946,9 @@ function createHttpBackend($browser, XHR, $browserDefer, callbacks, rawDocument)
           // onreadystatechange might by called multiple times
           // with readyState === 4 on mobile webkit caused by
           // xhrs that are resolved while the app is in the background (see #5426).
-          xhr.onreadystatechange = undefined;
+          //
+          // we must delete the property instead of setting it to undefined/null to make IE8 happy.
+          delete xhr.onreadystatechange;
 
           var responseHeaders = null,
               response = null;
@@ -9192,16 +9196,17 @@ function $LocationProvider(){
     // update $location when $browser url changes
     $browser.onUrlChange(function(newUrl) {
       if ($location.absUrl() != newUrl) {
-        if ($rootScope.$broadcast('$locationChangeStart', newUrl,
-                                  $location.absUrl()).defaultPrevented) {
-          $browser.url($location.absUrl());
-          return;
-        }
         $rootScope.$evalAsync(function() {
           var oldUrl = $location.absUrl();
 
           $location.$$parse(newUrl);
-          afterLocationChange(oldUrl);
+          if ($rootScope.$broadcast('$locationChangeStart', newUrl,
+                                    oldUrl).defaultPrevented) {
+            $location.$$parse(oldUrl);
+            $browser.url(oldUrl);
+          } else {
+            afterLocationChange(oldUrl);
+          }
         });
         if (!$rootScope.$$phase) $rootScope.$digest();
       }
@@ -20579,11 +20584,6 @@ var styleDirective = valueFn({
 })(window, document);
 
 !angular.$$csp() && angular.element(document).find('head').prepend('<style type="text/css">@charset "UTF-8";[ng\\:cloak],[ng-cloak],[data-ng-cloak],[x-ng-cloak],.ng-cloak,.x-ng-cloak,.ng-hide{display:none !important;}ng\\:form{display:block;}</style>');
-
-/**
- * Expose `angular`
- */
-module.exports = window.angular;
 
 /**
  * Expose `angular`
