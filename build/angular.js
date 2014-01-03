@@ -1,5 +1,5 @@
 /**
- * @license AngularJS v1.2.7-build.local+sha.1345a74
+ * @license AngularJS v1.2.7-build.local+sha.9cb4063
  * (c) 2010-2014 Google, Inc. http://angularjs.org
  * License: MIT
  */
@@ -68,7 +68,7 @@ function minErr(module) {
       return match;
     });
 
-    message = message + '\nhttp://errors.angularjs.org/1.2.7-build.local+sha.1345a74/' +
+    message = message + '\nhttp://errors.angularjs.org/1.2.7-build.local+sha.9cb4063/' +
       (module ? module + '/' : '') + code;
     for (i = 2; i < arguments.length; i++) {
       message = message + (i == 2 ? '?' : '&') + 'p' + (i-2) + '=' +
@@ -1833,7 +1833,7 @@ function setupModuleLoader(window) {
  * - `codeName` – `{string}` – Code name of the release, such as "jiggling-armfat".
  */
 var version = {
-  full: '1.2.7-build.local+sha.1345a74',    // all of these placeholder strings will be replaced by grunt's
+  full: '1.2.7-build.local+sha.9cb4063',    // all of these placeholder strings will be replaced by grunt's
   major: 1,    // package task
   minor: 2,
   dot: 7,
@@ -7944,14 +7944,14 @@ function createHttpBackend($browser, createXhr, $browserDefer, callbacks, rawDoc
       // response is in the cache. the promise api will ensure that to the app code the api is
       // always async
       xhr.onreadystatechange = function() {
-        if (xhr.readyState == 4) {
-          // onreadystatechange might by called multiple times
-          // with readyState === 4 on mobile webkit caused by
-          // xhrs that are resolved while the app is in the background (see #5426).
-          //
-          // we must delete the property instead of setting it to undefined/null to make IE8 happy.
-          delete xhr.onreadystatechange;
-
+        // onreadystatechange might by called multiple times with readyState === 4 on mobile webkit caused by
+        // xhrs that are resolved while the app is in the background (see #5426).
+        // since calling completeRequest sets the `xhr` variable to null, we just check if it's not null before
+        // continuing
+        //
+        // we can't set xhr.onreadystatechange to undefined or delete it because that breaks IE8 (method=PATCH) and
+        // Safari respectively.
+        if (xhr && xhr.readyState == 4) {
           var responseHeaders = null,
               response = null;
 
@@ -20586,11 +20586,6 @@ var styleDirective = valueFn({
 })(window, document);
 
 !angular.$$csp() && angular.element(document).find('head').prepend('<style type="text/css">@charset "UTF-8";[ng\\:cloak],[ng-cloak],[data-ng-cloak],[x-ng-cloak],.ng-cloak,.x-ng-cloak,.ng-hide{display:none !important;}ng\\:form{display:block;}</style>');
-
-/**
- * Expose `angular`
- */
-module.exports = window.angular;
 
 /**
  * Expose `angular`
