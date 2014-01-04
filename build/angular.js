@@ -1,5 +1,5 @@
 /**
- * @license AngularJS v1.2.8-build.local+sha.b1cb74a
+ * @license AngularJS v1.2.8-build.local+sha.e5a137c
  * (c) 2010-2014 Google, Inc. http://angularjs.org
  * License: MIT
  */
@@ -68,7 +68,7 @@ function minErr(module) {
       return match;
     });
 
-    message = message + '\nhttp://errors.angularjs.org/1.2.8-build.local+sha.b1cb74a/' +
+    message = message + '\nhttp://errors.angularjs.org/1.2.8-build.local+sha.e5a137c/' +
       (module ? module + '/' : '') + code;
     for (i = 2; i < arguments.length; i++) {
       message = message + (i == 2 ? '?' : '&') + 'p' + (i-2) + '=' +
@@ -1833,7 +1833,7 @@ function setupModuleLoader(window) {
  * - `codeName` – `{string}` – Code name of the release, such as "jiggling-armfat".
  */
 var version = {
-  full: '1.2.8-build.local+sha.b1cb74a',    // all of these placeholder strings will be replaced by grunt's
+  full: '1.2.8-build.local+sha.e5a137c',    // all of these placeholder strings will be replaced by grunt's
   major: 1,    // package task
   minor: 2,
   dot: 8,
@@ -7944,7 +7944,7 @@ function createHttpBackend($browser, createXhr, $browserDefer, callbacks, rawDoc
       // response is in the cache. the promise api will ensure that to the app code the api is
       // always async
       xhr.onreadystatechange = function() {
-        // onreadystatechange might by called multiple times with readyState === 4 on mobile webkit caused by
+        // onreadystatechange might get called multiple times with readyState === 4 on mobile webkit caused by
         // xhrs that are resolved while the app is in the background (see #5426).
         // since calling completeRequest sets the `xhr` variable to null, we just check if it's not null before
         // continuing
@@ -18935,6 +18935,8 @@ var ngPluralizeDirective = ['$locale', '$interpolate', function($locale, $interp
  * | `$even`   | {@type boolean} | true if the iterator position `$index` is even (otherwise false).           |
  * | `$odd`    | {@type boolean} | true if the iterator position `$index` is odd (otherwise false).            |
  *
+ * Creating aliases for these properties is possible with {@link api/ng.directive:ngInit `ngInit`}.
+ * This may be useful when, for instance, nesting ngRepeats.
  *
  * # Special repeat start and end points
  * To repeat a series of elements instead of just one parent element, ngRepeat (as well as other ng directives) supports extending
