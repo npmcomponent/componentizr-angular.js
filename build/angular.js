@@ -1,5 +1,5 @@
 /**
- * @license AngularJS v1.2.8-build.local+sha.c542bca
+ * @license AngularJS v1.2.8-build.local+sha.b66aecf
  * (c) 2010-2014 Google, Inc. http://angularjs.org
  * License: MIT
  */
@@ -68,7 +68,7 @@ function minErr(module) {
       return match;
     });
 
-    message = message + '\nhttp://errors.angularjs.org/1.2.8-build.local+sha.c542bca/' +
+    message = message + '\nhttp://errors.angularjs.org/1.2.8-build.local+sha.b66aecf/' +
       (module ? module + '/' : '') + code;
     for (i = 2; i < arguments.length; i++) {
       message = message + (i == 2 ? '?' : '&') + 'p' + (i-2) + '=' +
@@ -1833,7 +1833,7 @@ function setupModuleLoader(window) {
  * - `codeName` – `{string}` – Code name of the release, such as "jiggling-armfat".
  */
 var version = {
-  full: '1.2.8-build.local+sha.c542bca',    // all of these placeholder strings will be replaced by grunt's
+  full: '1.2.8-build.local+sha.b66aecf',    // all of these placeholder strings will be replaced by grunt's
   major: 1,    // package task
   minor: 2,
   dot: 8,
@@ -7937,7 +7937,7 @@ function createHttpBackend($browser, createXhr, $browserDefer, callbacks, rawDoc
         } else {
           completeRequest(callback, status || -2);
         }
-        delete callbacks[callbackId];
+        callbacks[callbackId] = angular.noop;
       });
     } else {
 
@@ -19869,10 +19869,14 @@ var ngTranscludeDirective = ngDirective({
  * @restrict E
  *
  * @description
- * Load content of a script tag, with type `text/ng-template`, into `$templateCache`, so that the
- * template can be used by `ngInclude`, `ngView` or directive templates.
+ * Load the content of a `<script>` element into {@link api/ng.$templateCache `$templateCache`}, so that the
+ * template can be used by {@link api/ng.directive:ngInclude `ngInclude`},
+ * {@link api/ngRoute.directive:ngView `ngView`}, or {@link guide/directive directives}. The type of the
+ * `<script>` element must be specified as `text/ng-template`, and a cache name for the template must be
+ * assigned through the element's `id`, which can then be used as a directive's `templateUrl`.
  *
- * @param {'text/ng-template'} type must be set to `'text/ng-template'`
+ * @param {'text/ng-template'} type Must be set to `'text/ng-template'`.
+ * @param {string} id Cache name of the template.
  *
  * @example
   <doc:example>
