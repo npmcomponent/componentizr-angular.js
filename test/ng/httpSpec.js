@@ -405,6 +405,10 @@ describe('$http', function() {
       $http = $h;
     }]));
 
+    it('should send GET requests if no method specified', inject(function($httpBackend, $http) {
+      $httpBackend.expect('GET', '/url').respond('');
+      $http({url: '/url'});
+    }));
 
     it('should do basic request', inject(function($httpBackend, $http) {
       $httpBackend.expect('GET', '/url').respond('');
@@ -452,6 +456,11 @@ describe('$http', function() {
         $httpBackend.expect('GET', '/Path?!do%26h=g%3Da+h&:bar=$baz@1').respond('');
         $http({url: '/Path', params: {':bar': '$baz@1', '!do&h': 'g=a h'}, method: 'GET'});
       });
+
+      it('should not add question mark when params is empty', function() {
+        $httpBackend.expect('GET', '/url').respond('');
+        $http({url: '/url', params: {}, method: 'GET'});
+      })
     });
 
 
@@ -464,6 +473,30 @@ describe('$http', function() {
           expect(response.status).toBe(207);
           expect(response.headers()).toEqual({'content-encoding': 'smurf'});
           expect(response.config.url).toBe('/url');
+          callback();
+        });
+
+        $httpBackend.flush();
+        expect(callback).toHaveBeenCalledOnce();
+      });
+
+
+      it('should pass statusText in response object when a request is successful', function() {
+        $httpBackend.expect('GET', '/url').respond(200, 'SUCCESS', {}, 'OK');
+        $http({url: '/url', method: 'GET'}).then(function(response) {
+          expect(response.statusText).toBe('OK');
+          callback();
+        });
+
+        $httpBackend.flush();
+        expect(callback).toHaveBeenCalledOnce();
+      });
+
+
+      it('should pass statusText in response object when a request fails', function() {
+        $httpBackend.expect('GET', '/url').respond(404, 'ERROR', {}, 'Not Found');
+        $http({url: '/url', method: 'GET'}).then(null, function(response) {
+          expect(response.statusText).toBe('Not Found');
           callback();
         });
 
@@ -667,7 +700,7 @@ describe('$http', function() {
         }).respond('');
 
         $http({url: '/url', method: 'GET', headers: {
-          'Custom': 'header',
+          'Custom': 'header'
         }});
 
         $httpBackend.flush();
@@ -980,6 +1013,16 @@ describe('$http', function() {
         });
 
 
+        it('should ignore Blob objects', function () {
+          if (!window.Blob) return;
+
+          var blob = new Blob(['blob!'], { type: 'text/plain' });
+
+          $httpBackend.expect('POST', '/url', '[object Blob]').respond('');
+          $http({ method: 'POST', url: '/url', data: blob });
+        });
+
+
         it('should have access to request headers', function() {
           $httpBackend.expect('POST', '/url', 'header1').respond(200);
           $http.post('/url', 'req', {
@@ -1119,6 +1162,16 @@ describe('$http', function() {
         expect(callback).toHaveBeenCalledOnce();
         expect(callback.mostRecentCall.args[0]).toBe('content');
       }));
+
+      it('should cache request when cache is provided and no method specified', function () {
+        doFirstCacheRequest();
+
+        $http({url: '/url', cache: cache}).success(callback);
+        $rootScope.$digest();
+
+        expect(callback).toHaveBeenCalledOnce();
+        expect(callback.mostRecentCall.args[0]).toBe('content');
+      });
 
 
       it('should not cache when cache is not provided', function() {
@@ -1439,6 +1492,12 @@ describe('$http', function() {
         $http.get('/url');
         $httpBackend.flush();
       });
+
+      it('should have separate opbjects for defaults PUT and POST', function() {
+        expect($http.defaults.headers.post).not.toBe($http.defaults.headers.put);
+        expect($http.defaults.headers.post).not.toBe($http.defaults.headers.patch);
+        expect($http.defaults.headers.put).not.toBe($http.defaults.headers.patch);
+      })
     });
   });
 

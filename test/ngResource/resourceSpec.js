@@ -1,9 +1,14 @@
 'use strict';
 
 describe("resource", function() {
-  var $resource, CreditCard, callback, $httpBackend;
+  var $resource, CreditCard, callback, $httpBackend, resourceProvider;
 
   beforeEach(module('ngResource'));
+
+  beforeEach(module(function ($resourceProvider) {
+    resourceProvider = $resourceProvider;
+  }));
+
   beforeEach(inject(function($injector) {
     $httpBackend = $injector.get('$httpBackend');
     $resource = $injector.get('$resource');
@@ -94,6 +99,49 @@ describe("resource", function() {
   });
 
 
+  describe('shallow copy', function() {
+    it('should make a copy', function() {
+      var original = {key:{}};
+      var copy = shallowClearAndCopy(original);
+      expect(copy).toEqual(original);
+      expect(copy.key).toBe(original.key);
+    });
+
+
+    it('should omit "$$"-prefixed properties', function() {
+      var original = {$$some: true, $$: true};
+      var clone = {};
+
+      expect(shallowClearAndCopy(original, clone)).toBe(clone);
+      expect(clone.$$some).toBeUndefined();
+      expect(clone.$$).toBeUndefined();
+    });
+
+
+    it('should copy "$"-prefixed properties from copy', function() {
+      var original = {$some: true};
+      var clone = {};
+
+      expect(shallowClearAndCopy(original, clone)).toBe(clone);
+      expect(clone.$some).toBe(original.$some);
+    });
+
+
+    it('should omit properties from prototype chain', function() {
+      var original, clone = {};
+      function Func() {};
+      Func.prototype.hello = "world";
+
+      original = new Func();
+      original.goodbye = "world";
+
+      expect(shallowClearAndCopy(original, clone)).toBe(clone);
+      expect(clone.hello).toBeUndefined();
+      expect(clone.goodbye).toBe("world");
+    });
+  });
+
+
   it('should default to empty parameters', function() {
     $httpBackend.expect('GET', 'URL').respond({});
     $resource('URL').query();
@@ -178,11 +226,12 @@ describe("resource", function() {
 
     $httpBackend.expect('GET', '/Path/foo%231').respond('{}');
     $httpBackend.expect('GET', '/Path/doh!@foo?bar=baz%231').respond('{}');
+    $httpBackend.expect('GET', '/Path/herp$').respond('{}');
 
     R.get({a: 'foo#1'});
     R.get({a: 'doh!@foo', bar: 'baz#1'});
+    R.get({a: 'herp$'});
   });
-
 
   it('should not encode @ in url params', function() {
    //encodeURIComponent is too agressive and doesn't follow http://www.ietf.org/rfc/rfc3986.txt
@@ -195,7 +244,6 @@ describe("resource", function() {
    R.get({a: 'doh@fo o', ':bar': '$baz@1', '!do&h': 'g=a h'});
   });
 
-
   it('should encode array params', function() {
     var R = $resource('/Path/:a');
     $httpBackend.expect('GET', '/Path/doh&foo?bar=baz1&bar=baz2').respond('{}');
@@ -207,6 +255,52 @@ describe("resource", function() {
    $httpBackend.expect('GET', '/Path/null').respond('{}');
    R.get({a: 'null'});
   });
+
+
+  it('should implicitly strip trailing slashes from URLs by default', function() {
+    var R = $resource('http://localhost:8080/Path/:a/');
+
+    $httpBackend.expect('GET', 'http://localhost:8080/Path/foo').respond();
+    R.get({a: 'foo'});
+  });
+
+  it('should support explicitly stripping trailing slashes from URLs', function() {
+    var R = $resource('http://localhost:8080/Path/:a/', {}, {}, {stripTrailingSlashes: true});
+
+    $httpBackend.expect('GET', 'http://localhost:8080/Path/foo').respond();
+    R.get({a: 'foo'});
+  });
+
+  it('should support explicitly keeping trailing slashes in URLs', function() {
+    var R = $resource('http://localhost:8080/Path/:a/', {}, {}, {stripTrailingSlashes: false});
+
+    $httpBackend.expect('GET', 'http://localhost:8080/Path/foo/').respond();
+    R.get({a: 'foo'});
+  });
+
+  it('should support provider-level configuration to strip trailing slashes in URLs', function() {
+    // Set the new behavior for all new resources created by overriding the
+    // provider configuration
+    resourceProvider.defaults.stripTrailingSlashes = false;
+
+    var R = $resource('http://localhost:8080/Path/:a/');
+
+    $httpBackend.expect('GET', 'http://localhost:8080/Path/foo/').respond();
+    R.get({a: 'foo'});
+  });
+
+  it('should support overriding provider default trailing-slash stripping configuration', function() {
+    // Set the new behavior for all new resources created by overriding the
+    // provider configuration
+    resourceProvider.defaults.stripTrailingSlashes = false;
+
+    // Specific instances of $resource can still override the provider's default
+    var R = $resource('http://localhost:8080/Path/:a/', {}, {}, {stripTrailingSlashes: true});
+
+    $httpBackend.expect('GET', 'http://localhost:8080/Path/foo').respond();
+    R.get({a: 'foo'});
+  });
+
 
   it('should allow relative paths in resource url', function () {
     var R = $resource(':relativePath');
@@ -285,7 +379,7 @@ describe("resource", function() {
 
 
   it('should not throw TypeError on null default params', function() {
-    $httpBackend.expect('GET', '/Path?').respond('{}');
+    $httpBackend.expect('GET', '/Path').respond('{}');
     var R = $resource('/Path', {param: null}, {get: {method: 'GET'}});
 
     expect(function() {

@@ -163,7 +163,7 @@ describe('injector', function() {
       function $f_n0 /*
           */(
           $a, // x, <-- looks like an arg but it is a comment
-          b_ , /* z, <-- looks like an arg but it is a
+          b_, /* z, <-- looks like an arg but it is a
                  multi-line comment
                  function (a, b) {}
                  */
@@ -861,6 +861,72 @@ describe('injector', function() {
           $provide.value('name', 'angular')
         }, instanceLookupInModule]);
       }).toThrowMatching(/\[\$injector:unpr] Unknown provider: name/);
+    });
+  });
+});
+
+describe('strict-di injector', function() {
+  beforeEach(inject.strictDi(true));
+
+  describe('with ngMock', function() {
+    it('should not throw when calling mock.module() with "magic" annotations', function() {
+      expect(function() {
+        module(function($provide, $httpProvider, $compileProvider) {
+          // Don't throw!
+        });
+      }).not.toThrow();
+    });
+
+
+    it('should not throw when calling mock.inject() with "magic" annotations', function() {
+      expect(function() {
+        inject(function($rootScope, $compile, $http) {
+          // Don't throw!
+        });
+      }).not.toThrow();
+    });
+  });
+
+
+  it('should throw if magic annotation is used by service', function() {
+    module(function($provide) {
+      $provide.service({
+        '$test': function() { return this; },
+        '$test2': function($test) { return this; }
+      });
+    });
+    inject(function($injector) {
+      expect (function() {
+        $injector.invoke(function($test2) {});
+      }).toThrowMinErr('$injector', 'strictdi');
+    });
+  });
+
+
+  it('should throw if magic annotation is used by provider', function() {
+    module(function($provide) {
+      $provide.provider({
+        '$test': function() { this.$get = function($rootScope) { return $rootScope; }; },
+      });
+    });
+    inject(function($injector) {
+      expect (function() {
+        $injector.invoke(['$test', function($test) {}]);
+      }).toThrowMinErr('$injector', 'strictdi');
+    });
+  });
+
+
+  it('should throw if magic annotation is used by factory', function() {
+    module(function($provide) {
+      $provide.factory({
+        '$test': function($rootScope) { return function() {} },
+      });
+    });
+    inject(function($injector) {
+      expect(function() {
+        $injector.invoke(['$test', function(test) {}]);
+      }).toThrowMinErr('$injector', 'strictdi');
     });
   });
 });

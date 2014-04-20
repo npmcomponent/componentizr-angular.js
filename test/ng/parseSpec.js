@@ -358,7 +358,7 @@ describe('parser', function() {
         forEach([2, 3, 4, 5, 6, 7, 8, 9, 10, 20, 42, 99], function(pathLength) {
           it('should resolve nested paths of length ' + pathLength, function() {
             // Create a nested object {x2: {x3: {x4: ... {x[n]: 42} ... }}}.
-            var obj = 42;
+            var obj = 42, locals = {};
             for (var i = pathLength; i >= 2; i--) {
               var newObj = {};
               newObj['x' + i] = obj;
@@ -371,6 +371,8 @@ describe('parser', function() {
               path += '.x' + i;
             }
             expect(scope.$eval(path)).toBe(42);
+            locals['x' + pathLength] = 'not 42'
+            expect(scope.$eval(path, locals)).toBe(42);
           });
         });
 
@@ -458,6 +460,8 @@ describe('parser', function() {
           expect(scope.$eval("[1, 2]").length).toEqual(2);
           expect(scope.$eval("[1, 2]")[0]).toEqual(1);
           expect(scope.$eval("[1, 2]")[1]).toEqual(2);
+          expect(scope.$eval("[1, 2,]")[1]).toEqual(2);
+          expect(scope.$eval("[1, 2,]").length).toEqual(2);
         });
 
         it('should evaluate array access', function() {
@@ -472,6 +476,9 @@ describe('parser', function() {
           expect(toJson(scope.$eval("{a:'b'}"))).toEqual('{"a":"b"}');
           expect(toJson(scope.$eval("{'a':'b'}"))).toEqual('{"a":"b"}');
           expect(toJson(scope.$eval("{\"a\":'b'}"))).toEqual('{"a":"b"}');
+          expect(toJson(scope.$eval("{a:'b',}"))).toEqual('{"a":"b"}');
+          expect(toJson(scope.$eval("{'a':'b',}"))).toEqual('{"a":"b"}');
+          expect(toJson(scope.$eval("{\"a\":'b',}"))).toEqual('{"a":"b"}');
         });
 
         it('should evaluate object access', function() {
@@ -784,6 +791,28 @@ describe('parser', function() {
                       '$parse', 'isecdom', 'Referencing DOM nodes in Angular expressions is ' +
                       'disallowed! Expression: a.b.doc.on("click")');
             }));
+
+            // Issue #4805
+            it('should NOT throw isecdom when referencing a Backbone Collection', function() {
+              // Backbone stuff is sort of hard to mock, if you have a better way of doing this,
+              // please fix this.
+              var fakeBackboneCollection = {
+                children: [{}, {}, {}],
+                find: function() {},
+                on: function() {},
+                off: function() {},
+                bind: function() {}
+              };
+              scope.backbone = fakeBackboneCollection;
+              expect(function() { scope.$eval('backbone'); }).not.toThrow();
+            });
+
+            it('should NOT throw isecdom when referencing an array with node properties', function() {
+              var array = [1,2,3];
+              array.on = array.attr = array.prop = array.bind = true;
+              scope.array = array;
+              expect(function() { scope.$eval('array'); }).not.toThrow();
+            });
           });
         });
 
@@ -938,6 +967,13 @@ describe('parser', function() {
             expect($parse('a.b')({a: {b: 0}}, {a: null})).toEqual(undefined);
             expect($parse('a.b.c')({a: null}, {a: {b: {c: 1}}})).toEqual(1);
           }));
+
+          it('should not use locals to resolve object properties', inject(function($parse) {
+            expect($parse('a[0].b')({a: [ {b : 'scope'} ]}, {b : 'locals'})).toBe('scope');
+            expect($parse('a[0]["b"]')({a: [ {b : 'scope'} ]}, {b : 'locals'})).toBe('scope');
+            expect($parse('a[0][0].b')({a: [[{b : 'scope'}]]}, {b : 'locals'})).toBe('scope');
+            expect($parse('a[0].b.c')({a: [ {b: {c: 'scope'}}] }, {b : {c: 'locals'} })).toBe('scope');
+          }));
         });
 
         describe('literal', function() {
@@ -995,6 +1031,7 @@ describe('parser', function() {
 
           it('should mark complex expressions involving constant values as constant', inject(function($parse) {
             expect($parse('!true').constant).toBe(true);
+            expect($parse('-42').constant).toBe(true);
             expect($parse('1 - 1').constant).toBe(true);
             expect($parse('"foo" + "bar"').constant).toBe(true);
             expect($parse('5 != null').constant).toBe(true);
@@ -1325,7 +1362,7 @@ describe('parser', function() {
             }));
 
 
-            it('should evaluate a resolved promise and overwrite the previous set value in the absense of the getter',
+            it('should evaluate a resolved promise and overwrite the previous set value in the absence of the getter',
                 inject(function($parse) {
               scope.person = promise;
               var c1Getter = $parse('person.A.B.C1', { unwrapPromises: true });

@@ -65,6 +65,17 @@ describe('jqLite', function() {
     });
 
 
+    it('should allow construction of html with leading whitespace', function() {
+      var nodes = jqLite('  \n\r   \r\n<div>1</div><span>2</span>');
+      expect(nodes[0].parentNode).toBeDefined();
+      expect(nodes[0].parentNode.nodeType).toBe(11); /** Document Fragment **/;
+      expect(nodes[0].parentNode).toBe(nodes[1].parentNode);
+      expect(nodes.length).toBe(2);
+      expect(nodes[0].innerHTML).toBe('1');
+      expect(nodes[1].innerHTML).toBe('2');
+    });
+
+
     it('should allow creation of comment tags', function() {
       var nodes = jqLite('<!-- foo -->');
       expect(nodes.length).toBe(1);
@@ -84,8 +95,55 @@ describe('jqLite', function() {
       expect(fragment.length).toBe(1);
       expect(fragment[0].nodeType).toBe(11);
     });
+
+
+    it('should allow construction of <option> elements', function() {
+      var nodes = jqLite('<option>');
+      expect(nodes.length).toBe(1);
+      expect(nodes[0].nodeName.toLowerCase()).toBe('option');
+    });
+
+
+    // Special tests for the construction of elements which are restricted (in the HTML5 spec) to
+    // being children of specific nodes.
+    forEach([
+      'caption',
+      'colgroup',
+      'col',
+      'optgroup',
+      'opt',
+      'tbody',
+      'td',
+      'tfoot',
+      'th',
+      'thead',
+      'tr'
+    ], function(name) {
+      it('should allow construction of <$NAME$> elements'.replace('$NAME$', name), function() {
+        var nodes = jqLite('<$NAME$>'.replace('$NAME$', name));
+        expect(nodes.length).toBe(1);
+        expect(nodes[0].nodeName.toLowerCase()).toBe(name);
+      });
+    });
   });
 
+  describe('_data', function() {
+    it('should provide access to the data present on the element', function() {
+      var element = jqLite('<i>foo</i>');
+      var data = ['value'];
+      element.data('val', data);
+      expect(angular.element._data(element[0]).data.val).toBe(data);
+      dealoc(element);
+    });
+
+    it('should provide access to the events present on the element', function() {
+      var element = jqLite('<i>foo</i>');
+      expect(angular.element._data(element[0]).events).toBeUndefined();
+
+      element.on('click', function() { });
+      expect(angular.element._data(element[0]).events.click).toBeDefined();
+    });
+  });
 
   describe('inheritedData', function() {
 
@@ -139,6 +197,19 @@ describe('jqLite', function() {
       expect(ul.inheritedData('foo')).toBe('bar');
 
       dealoc(ul);
+    });
+
+    it('should pass through DocumentFragment boundaries via host', function() {
+      var host = jqLite('<div></div>'),
+          frag = document.createDocumentFragment(),
+          $frag = jqLite(frag);
+      frag.host = host[0];
+      host.data("foo", 123);
+      host.append($frag);
+      expect($frag.inheritedData("foo")).toBe(123);
+
+      dealoc(host);
+      dealoc($frag);
     });
   });
 
@@ -637,6 +708,57 @@ describe('jqLite', function() {
         expect(jqLite(a).hasClass('abc')).toEqual(false);
         expect(jqLite(b).hasClass('abc')).toEqual(false);
 
+      });
+
+      it('should allow toggling multiple classes without a condition', function () {
+        var selector = jqLite([a, b]);
+        expect(selector.toggleClass('abc cde')).toBe(selector);
+        expect(jqLite(a).hasClass('abc')).toBe(true);
+        expect(jqLite(a).hasClass('cde')).toBe(true);
+        expect(jqLite(b).hasClass('abc')).toBe(true);
+        expect(jqLite(b).hasClass('cde')).toBe(true);
+
+        expect(selector.toggleClass('abc cde')).toBe(selector);
+        expect(jqLite(a).hasClass('abc')).toBe(false);
+        expect(jqLite(a).hasClass('cde')).toBe(false);
+        expect(jqLite(b).hasClass('abc')).toBe(false);
+        expect(jqLite(b).hasClass('cde')).toBe(false);
+
+        expect(selector.toggleClass('abc')).toBe(selector);
+        expect(selector.toggleClass('abc cde')).toBe(selector);
+        expect(jqLite(a).hasClass('abc')).toBe(false);
+        expect(jqLite(a).hasClass('cde')).toBe(true);
+        expect(jqLite(b).hasClass('abc')).toBe(false);
+        expect(jqLite(b).hasClass('cde')).toBe(true);
+
+        expect(selector.toggleClass('abc cde')).toBe(selector);
+        expect(jqLite(a).hasClass('abc')).toBe(true);
+        expect(jqLite(a).hasClass('cde')).toBe(false);
+        expect(jqLite(b).hasClass('abc')).toBe(true);
+        expect(jqLite(b).hasClass('cde')).toBe(false);
+      });
+
+      it('should allow toggling multiple classes with a condition', function () {
+        var selector = jqLite([a, b]);
+        selector.addClass('abc');
+        expect(selector.toggleClass('abc cde', true)).toBe(selector);
+        expect(jqLite(a).hasClass('abc')).toBe(true);
+        expect(jqLite(a).hasClass('cde')).toBe(true);
+        expect(jqLite(b).hasClass('abc')).toBe(true);
+        expect(jqLite(b).hasClass('cde')).toBe(true);
+
+        selector.removeClass('abc');
+        expect(selector.toggleClass('abc cde', false)).toBe(selector);
+        expect(jqLite(a).hasClass('abc')).toBe(false);
+        expect(jqLite(a).hasClass('cde')).toBe(false);
+        expect(jqLite(b).hasClass('abc')).toBe(false);
+        expect(jqLite(b).hasClass('cde')).toBe(false);
+      });
+
+      it('should not break for null / undefined selectors', function () {
+        var selector = jqLite([a, b]);
+        expect(selector.toggleClass(null)).toBe(selector);
+        expect(selector.toggleClass(undefined)).toBe(selector);
       });
     });
 
@@ -1271,6 +1393,33 @@ describe('jqLite', function() {
       expect(contents[0].data).toEqual(' some comment ');
       expect(contents[1].data).toEqual('before-');
     });
+
+    // IE8 does not like this test, although the functionality may still work there.
+    if (!msie || msie > 8) {
+      it('should select all types iframe contents', function() {
+        var iframe_ = document.createElement('iframe'), tested,
+            iframe = jqLite(iframe_);
+        function test() {
+          var contents = iframe.contents();
+          expect(contents[0]).toBeTruthy();
+          expect(contents.length).toBe(1);
+          expect(contents.prop('nodeType')).toBe(9);
+          expect(contents[0].body).toBeTruthy();
+          expect(jqLite(contents[0].body).contents().length).toBe(3);
+          iframe.remove();
+          tested = true;
+        }
+        iframe_.onload = iframe_.onreadystatechange = function() {
+          if (iframe_.contentDocument) test();
+        };
+        iframe_.src = "/base/test/fixtures/iframe.html";
+        jqLite(document).find('body').append(iframe);
+
+        // This test is potentially flaky on CI cloud instances, so there is a generous
+        // wait period...
+        waitsFor(function() { return tested; }, 2000);
+      });
+    }
   });
 
 

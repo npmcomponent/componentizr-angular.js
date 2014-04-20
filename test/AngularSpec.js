@@ -190,13 +190,34 @@ describe('angular', function() {
       expect(copy.key).toBe(original.key);
     });
 
-    it('should not copy $$ properties nor prototype properties', function() {
+    it('should omit "$$"-prefixed properties', function() {
       var original = {$$some: true, $$: true};
       var clone = {};
 
       expect(shallowCopy(original, clone)).toBe(clone);
       expect(clone.$$some).toBeUndefined();
       expect(clone.$$).toBeUndefined();
+    });
+
+    it('should copy "$"-prefixed properties from copy', function() {
+      var original = {$some: true};
+      var clone = {};
+
+      expect(shallowCopy(original, clone)).toBe(clone);
+      expect(clone.$some).toBe(original.$some);
+    });
+
+    it('should omit properties from prototype chain', function() {
+      var original, clone = {};
+      function Func() {};
+      Func.prototype.hello = "world";
+
+      original = new Func();
+      original.goodbye = "world";
+
+      expect(shallowCopy(original, clone)).toBe(clone);
+      expect(clone.hello).toBeUndefined();
+      expect(clone.goodbye).toBe("world");
     });
   });
 
@@ -666,7 +687,7 @@ describe('angular', function() {
       var appElement = jqLite('<div ng-app="ABC"></div>')[0];
       element.querySelectorAll['[ng-app]'] = [appElement];
       angularInit(element, bootstrapSpy);
-      expect(bootstrapSpy).toHaveBeenCalledOnceWith(appElement, ['ABC']);
+      expect(bootstrapSpy).toHaveBeenCalledOnceWith(appElement, ['ABC'], jasmine.any(Object));
     });
 
 
@@ -674,7 +695,7 @@ describe('angular', function() {
       var appElement = jqLite('<div id="ng-app" data-ng-app="ABC"></div>')[0];
       jqLite(document.body).append(appElement);
       angularInit(element, bootstrapSpy);
-      expect(bootstrapSpy).toHaveBeenCalledOnceWith(appElement, ['ABC']);
+      expect(bootstrapSpy).toHaveBeenCalledOnceWith(appElement, ['ABC'], jasmine.any(Object));
     });
 
 
@@ -682,7 +703,7 @@ describe('angular', function() {
       var appElement = jqLite('<div data-ng-app="ABC"></div>')[0];
       element.querySelectorAll['.ng\\:app'] = [appElement];
       angularInit(element, bootstrapSpy);
-      expect(bootstrapSpy).toHaveBeenCalledOnceWith(appElement, ['ABC']);
+      expect(bootstrapSpy).toHaveBeenCalledOnceWith(appElement, ['ABC'], jasmine.any(Object));
     });
 
 
@@ -690,14 +711,14 @@ describe('angular', function() {
       var appElement = jqLite('<div x-ng-app="ABC"></div>')[0];
       element.querySelectorAll['[ng\\:app]'] = [ appElement ];
       angularInit(element, bootstrapSpy);
-      expect(bootstrapSpy).toHaveBeenCalledOnceWith(appElement, ['ABC']);
+      expect(bootstrapSpy).toHaveBeenCalledOnceWith(appElement, ['ABC'], jasmine.any(Object));
     });
 
 
     it('should bootstrap using class name', function() {
       var appElement = jqLite('<div class="ng-app: ABC;"></div>')[0];
       angularInit(jqLite('<div></div>').append(appElement)[0], bootstrapSpy);
-      expect(bootstrapSpy).toHaveBeenCalledOnceWith(appElement, ['ABC']);
+      expect(bootstrapSpy).toHaveBeenCalledOnceWith(appElement, ['ABC'], jasmine.any(Object));
     });
 
 
@@ -705,21 +726,21 @@ describe('angular', function() {
       var appElement = jqLite('<div x-ng-app></div>')[0];
       element.querySelectorAll['[x-ng-app]'] = [ appElement ];
       angularInit(element, bootstrapSpy);
-      expect(bootstrapSpy).toHaveBeenCalledOnceWith(appElement, []);
+      expect(bootstrapSpy).toHaveBeenCalledOnceWith(appElement, [], jasmine.any(Object));
     });
 
 
     it('should bootstrap anonymously using class only', function() {
       var appElement = jqLite('<div class="ng-app"></div>')[0];
       angularInit(jqLite('<div></div>').append(appElement)[0], bootstrapSpy);
-      expect(bootstrapSpy).toHaveBeenCalledOnceWith(appElement, []);
+      expect(bootstrapSpy).toHaveBeenCalledOnceWith(appElement, [], jasmine.any(Object));
     });
 
 
     it('should bootstrap if the annotation is on the root element', function() {
       var appElement = jqLite('<div class="ng-app"></div>')[0];
       angularInit(appElement, bootstrapSpy);
-      expect(bootstrapSpy).toHaveBeenCalledOnceWith(appElement, []);
+      expect(bootstrapSpy).toHaveBeenCalledOnceWith(appElement, [], jasmine.any(Object));
     });
 
 
@@ -757,7 +778,24 @@ describe('angular', function() {
       );
 
       dealoc(document);
-    })
+    });
+
+
+    it('should bootstrap in strict mode when ng-strict-di attribute is specified', function() {
+      bootstrapSpy = spyOn(angular, 'bootstrap').andCallThrough();
+      var appElement = jqLite('<div class="ng-app" ng-strict-di></div>');
+      angularInit(jqLite('<div></div>').append(appElement[0])[0], bootstrapSpy);
+      expect(bootstrapSpy).toHaveBeenCalledOnce();
+      expect(bootstrapSpy.mostRecentCall.args[2].strictDi).toBe(true);
+
+      var injector = appElement.injector();
+      function testFactory($rootScope) {};
+      expect(function() {
+        injector.instantiate(testFactory);
+      }).toThrowMinErr('$injector', 'strictdi');
+
+      dealoc(appElement);
+    });
   });
 
 
@@ -1019,7 +1057,7 @@ describe('angular', function() {
     });
 
 
-    it('should allow seperator to be overridden', function() {
+    it('should allow separator to be overridden', function() {
       expect(snake_case('ABC', '&')).toEqual('a&b&c');
       expect(snake_case('alanBobCharles', '&')).toEqual('alan&bob&charles');
     });
@@ -1106,5 +1144,25 @@ describe('angular', function() {
         expect(result).toEqual(expected[idx]);
       });
     }));
+
+    // Issue #4805
+    it('should return false for objects resembling a Backbone Collection', function() {
+      // Backbone stuff is sort of hard to mock, if you have a better way of doing this,
+      // please fix this.
+      var fakeBackboneCollection = {
+        children: [{}, {}, {}],
+        find: function() {},
+        on: function() {},
+        off: function() {},
+        bind: function() {}
+      };
+      expect(isElement(fakeBackboneCollection)).toBe(false);
+    });
+
+    it('should return false for arrays with node-like properties', function() {
+      var array = [1,2,3];
+      array.on = true;
+      expect(isElement(array)).toBe(false);
+    });
   });
 });

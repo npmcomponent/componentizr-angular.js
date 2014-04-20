@@ -708,6 +708,52 @@ describe('select', function() {
       expect(sortedHtml(options[0])).toEqual('<option value="regularProperty">visible</option>');
     });
 
+    it('should allow expressions over multiple lines', function() {
+      scope.isNotFoo = function(item) {
+        return item.name !== 'Foo';
+      };
+
+      createSelect({
+        'ng-options': 'key.id\n' +
+          'for key in object\n' +
+          '| filter:isNotFoo',
+        'ng-model': 'selected'
+      });
+
+      scope.$apply(function() {
+        scope.object = [{'id': 1, 'name': 'Foo'},
+                        {'id': 2, 'name': 'Bar'},
+                        {'id': 3, 'name': 'Baz'}];
+        scope.selected = scope.object[0];
+      });
+
+      var options = element.find('option');
+      expect(options.length).toEqual(3);
+      expect(sortedHtml(options[1])).toEqual('<option value="0">2</option>');
+      expect(sortedHtml(options[2])).toEqual('<option value="1">3</option>');
+    });
+
+    it('should not update selected property of an option element on digest with no change event',
+        function() {
+      createSingleSelect();
+
+      scope.$apply(function() {
+        scope.values = [{name: 'A'}, {name: 'B'}, {name: 'C'}];
+        scope.selected = scope.values[0];
+      });
+
+      var options = element.find('option');
+      var optionToSelect = options.eq(1);
+
+      expect(optionToSelect.text()).toBe('B');
+
+      optionToSelect.prop('selected', true);
+      scope.$digest();
+
+      expect(optionToSelect.prop('selected')).toBe(true);
+      expect(scope.selected).toBe(scope.values[0]);
+    });
+
     describe('binding', function() {
 
       it('should bind to scope value', function() {
