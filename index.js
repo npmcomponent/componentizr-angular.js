@@ -1,3 +1,3 @@
 // Add your require's here
 
-module.exports = require('./build/angular.js');
+module.exports.angular = require('./build/angular.js');
